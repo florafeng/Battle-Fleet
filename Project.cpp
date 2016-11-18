@@ -117,25 +117,40 @@ void scanJoystick() {
     // outside of deadzone
   //  Serial.println("Up");
     g_cursorY = (g_cursorY - 12);
+
+    if (g_prevY < 48) {
+      g_cursorY = 150;
+    }
   }
 
   if (buttonValueD == LOW) {
 //    Serial.println("Down");
     // outside of deadzone
     g_cursorY = (g_cursorY + 12);
+
+    if (g_prevY > 144) {
+      g_cursorY = 42;
+    }
   }
 
   if (buttonValueL == LOW) {
     // outside of deadzone
     g_cursorX = (g_cursorX - 12);
 
+    if (g_prevX > 16) {
+      g_cursorX = 118;
+    }
   }
 
   if (buttonValueR == LOW) {
     // outside of deadzone
     g_cursorX = (g_cursorX + 12);
-  }
 
+    if (g_prevX < 112) {
+      g_cursorX = 10;
+    }
+  }
+  
   if (buttonValueS == LOW) {
      g_colour = ST7735_RED;
    }
