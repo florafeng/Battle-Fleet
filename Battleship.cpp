@@ -56,6 +56,7 @@ void scanJoystick();
   Draws the cursor.
 */
 
+void Setup();
 void CheckEdges();
 
 void updateDisplay();
@@ -64,26 +65,8 @@ void updateDisplay2();
 int main() {
   init();
   Serial.begin(9600);
-
-  pinMode(Up_Button, INPUT);
-  pinMode(Down_Button, INPUT);
-  pinMode(L_Button, INPUT);
-  pinMode(R_Button, INPUT);
-  pinMode(Select_Button, INPUT);
-  digitalWrite(Up_Button, HIGH);
-  digitalWrite(Down_Button, HIGH);
-  digitalWrite(L_Button, HIGH);
-  digitalWrite(R_Button, HIGH);
-  digitalWrite(Select_Button, HIGH);
-
-  // Init TFT
-  tft.initR(INITR_BLACKTAB);
-  // Init joystick
-  tft2.initR(INITR_BLACKTAB);
-
-  Serial.println("initialized!");
-
-
+  Setup();
+  
   tft2.fillScreen(BLACK);
   tft.fillScreen(ST7735_BLACK);
 
@@ -272,3 +255,23 @@ void updateDisplay2() {
   // g_prevY = g_cursorY;
   // tft.drawLine(g_prevX-5, g_prevY, g_prevX+5, g_prevY, g_colour);
   // tft.drawLine(g_prevX, g_prevY-5, g_prevX, g_prevY+5, g_colour);
+
+void Setup() {
+    pinMode(Up_Button, INPUT);
+  pinMode(Down_Button, INPUT);
+  pinMode(L_Button, INPUT);
+  pinMode(R_Button, INPUT);
+  pinMode(Select_Button, INPUT);
+  digitalWrite(Up_Button, HIGH);
+  digitalWrite(Down_Button, HIGH);
+  digitalWrite(L_Button, HIGH);
+  digitalWrite(R_Button, HIGH);
+  digitalWrite(Select_Button, HIGH);
+
+  // Init TFT
+  tft.initR(INITR_BLACKTAB);
+  // Init joystick
+  tft2.initR(INITR_BLACKTAB);
+
+  Serial.println("initialized!");
+}
