@@ -35,6 +35,8 @@ int h_cursorY = 90;
 int h_prevX = -1;
 int h_prevY = -1;
 
+int grid1[10][10];
+int grid2[10][10];
 int screen_order = 0;
 
 #define WHITE 0xFFFF
@@ -46,56 +48,132 @@ uint16_t h_colour = ST7735_GREEN;
 
 const uint16_t MY_YELLOW = tft.Color565(0xff, 0xff, 0x00);
 
-/**
-  Scans the joystick for any user input, updates cursor position.
-*/
-void scanJoystick();
+void updateDisplay() {
+  if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
+    // draw new cursor
+    tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
+    // erase old cursor
+    tft.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
+    // fix missing lane
+    tft.drawFastVLine(g_prevX-6, g_prevY-6, 12, WHITE);
+    tft.drawFastHLine(g_prevX-6, g_prevY-6, 12, WHITE);
 
-/**
-  Draws the cursor.
-*/
+    // store previous position
+    g_prevX = g_cursorX;
+    g_prevY = g_cursorY;
+    tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
+  }
+}
 
-void Setup();
-void CheckEdges();
+void updateDisplay2() {
+  tft2.drawCircle(h_prevX, h_prevY, 5, g_colour);
+}
 
-void updateDisplay();
-void updateDisplay2();
-
-int main() {
-  init();
-  Serial.begin(9600);
-  Setup();
-
+void lcdInt() {
+  tft.initR(INITR_BLACKTAB);
+  tft2.initR(INITR_BLACKTAB);
+  // fill screen
   tft2.fillScreen(BLACK);
   tft.fillScreen(ST7735_BLACK);
-
-  int startTime = millis();
-
+  // draw grid
   for (int16_t y = 36; y < 157; y += 12) {
   tft.drawFastHLine(4, y, 120, WHITE);
   tft2.drawFastHLine(4, y, 120, GREEN);
   }
-
   for (int16_t x = 4; x < 125; x += 12){
   tft.drawFastVLine(x, 36, 120, WHITE);
   tft2.drawFastVLine(x, 36, 120, GREEN);
   }
+  // draw initial cursor
+  tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
+  delay(150);
+}
 
-  int Grid[10][10];
-  int q;
-  int p=0;
-  for (q=0; q<10; q++) {
-    Grid[q][p] = 0;
+void buttonInt() {
+  pinMode(Up_Button, INPUT);
+  pinMode(Down_Button, INPUT);
+  pinMode(L_Button, INPUT);
+  pinMode(R_Button, INPUT);
+  pinMode(Select_Button, INPUT);
+  digitalWrite(Up_Button, HIGH);
+  digitalWrite(Down_Button, HIGH);
+  digitalWrite(L_Button, HIGH);
+  digitalWrite(R_Button, HIGH);
+  digitalWrite(Select_Button, HIGH);
+}
+
+void gridInt() {
+  int p = 0;
+  for (int q = 0; q < 10; q++) {
+    grid1[q][p] = 0;
+    grid2[q][p] = 0;
     p++;
   }
+}
+
+void setup() {
+  lcdInt();    // fill screen, draw grid and intial cursor
+  buttonInt(); // setup buttons
+  gridInt();   // initialze position array
+}
+
+void checkEdge() {
+  if (g_cursorY > 150) {
+    g_cursorY = 42;
+  }
+
+  if (g_cursorY < 42) {
+    g_cursorY = 150;
+  }
+
+  if (g_cursorX <10) {
+    g_cursorX = 118;
+  }
+
+  if (g_cursorX > 118) {
+    g_cursorX = 10;
+  }
+}
+
+void corsorMovement() {
+   int buttonValueU = digitalRead(Up_Button);
+   int buttonValueD = digitalRead(Down_Button);
+   int buttonValueL = digitalRead(L_Button);
+   int buttonValueR = digitalRead(R_Button);
+   int buttonValueS = digitalRead(Select_Button);
+
+  if (buttonValueU == LOW) {
+    g_cursorY = (g_cursorY - 12);
+  }
+  else if (buttonValueD == LOW) {
+    g_cursorY = (g_cursorY + 12);
+  }
+  else if (buttonValueL == LOW) {
+    g_cursorX = (g_cursorX - 12);
+  }
+  else if (buttonValueR == LOW) {
+    g_cursorX = (g_cursorX + 12);
+  }
+  else if (buttonValueS == LOW) {
+    g_colour = ST7735_GREEN;
+  }
+
+  checkEdge();
+  updateDisplay();
+}
+
+int main() {
+  init();
+  Serial.begin(9600);
+  setup();
+
+  int startTime = millis();
 
   while (true) {
 
-    scanJoystick();
-
-    CheckEdges();
-
-    updateDisplay();
+    corsorMovement();
+    selectPosition();
+    switchPlayer();
 
     int buttonValueS = digitalRead(Select_Button);
 
@@ -126,94 +204,4 @@ int main() {
 
   Serial.end();
   return 0;
-}
-
-void scanJoystick() {
-   int buttonValueU = digitalRead(Up_Button);
-   int buttonValueD = digitalRead(Down_Button);
-   int buttonValueL = digitalRead(L_Button);
-   int buttonValueR = digitalRead(R_Button);
-   int buttonValueS = digitalRead(Select_Button);
-
-  if (buttonValueU == LOW) {
-    g_cursorY = (g_cursorY - 12);
-  }
-
-  if (buttonValueD == LOW) {
-    g_cursorY = (g_cursorY + 12);
-  }
-
-  if (buttonValueL == LOW) {
-    g_cursorX = (g_cursorX - 12);
-  }
-
-  if (buttonValueR == LOW) {
-    g_cursorX = (g_cursorX + 12);
-  }
-
-  else {
-    g_colour = ST7735_GREEN;
-  }
-
-}
-
-void CheckEdges() {
-  if (g_cursorY > 150) {
-    g_cursorY = 42;
-  }
-
-  if (g_cursorY < 42) {
-    g_cursorY = 150;
-  }
-
-  if (g_cursorX <10) {
-    g_cursorX = 118;
-  }
-
-  if (g_cursorX > 118) {
-    g_cursorX = 10;
-  }
-}
-void updateDisplay() {
-  tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
-  delay(150);
-
-  if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
-    tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
-
-    tft.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
-
-    // fix missing lane
-    tft.drawFastVLine(g_prevX-6, g_prevY-6, 12, WHITE);
-    tft.drawFastHLine(g_prevX-6, g_prevY-6, 12, WHITE);
-
-    g_prevX = g_cursorX;
-    g_prevY = g_cursorY;
-
-    tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
-  }
-}
-
-void updateDisplay2() {
-  tft2.drawCircle(h_prevX, h_prevY, 5, g_colour);
-}
-
-void Setup() {
-  pinMode(Up_Button, INPUT);
-  pinMode(Down_Button, INPUT);
-  pinMode(L_Button, INPUT);
-  pinMode(R_Button, INPUT);
-  pinMode(Select_Button, INPUT);
-  digitalWrite(Up_Button, HIGH);
-  digitalWrite(Down_Button, HIGH);
-  digitalWrite(L_Button, HIGH);
-  digitalWrite(R_Button, HIGH);
-  digitalWrite(Select_Button, HIGH);
-
-  // Init TFT
-  tft.initR(INITR_BLACKTAB);
-  // Init joystick
-  tft2.initR(INITR_BLACKTAB);
-
-  Serial.println("initialized!");
 }
