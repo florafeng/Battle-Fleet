@@ -25,7 +25,6 @@ int Up_Button = 3;
 int Down_Button = 4;
 int Select_Button = 2;
 
-
 int g_cursorX = 58; // cursor pixel position
 int g_cursorY = 90;
 int g_prevX = -1; // previously drawn position of the cursor
@@ -36,7 +35,7 @@ int h_cursorY = 90;
 int h_prevX = -1;
 int h_prevY = -1;
 
-int Screen_order =0;
+int screen_order = 0;
 
 #define WHITE 0xFFFF
 #define BLACK 0x0000
@@ -66,25 +65,25 @@ int main() {
   init();
   Serial.begin(9600);
   Setup();
-  
+
   tft2.fillScreen(BLACK);
   tft.fillScreen(ST7735_BLACK);
 
-
   int startTime = millis();
 
-  for (int16_t y=36; y<157; y+=12) {
+  for (int16_t y = 36; y < 157; y += 12) {
   tft.drawFastHLine(4, y, 120, WHITE);
-  tft2.drawFastHLine(4, y, 120, GREEN);  
+  tft2.drawFastHLine(4, y, 120, GREEN);
   }
 
-  for (int16_t x=4; x<125; x+=12){
+  for (int16_t x = 4; x < 125; x += 12){
   tft.drawFastVLine(x, 36, 120, WHITE);
   tft2.drawFastVLine(x, 36, 120, GREEN);
   }
 
   int Grid[10][10];
-  int q; int p=0;
+  int q;
+  int p=0;
   for (q=0; q<10; q++) {
     Grid[q][p] = 0;
     p++;
@@ -100,37 +99,29 @@ int main() {
 
     int buttonValueS = digitalRead(Select_Button);
 
-    if ((buttonValueS == LOW) && (Screen_order == 0)) {
-    Screen_order = Screen_order +1;
+    if ((buttonValueS == LOW) && (screen_order == 0)) {
+    screen_order = screen_order + 1;
     }
-    if ((buttonValueS == LOW) && (Screen_order == 1)) {
-    Screen_order = Screen_order -1;
+    if ((buttonValueS == LOW) && (screen_order == 1)) {
+    screen_order = screen_order - 1;
     }
-//if ((buttonValueS
+
     int X_coordinate = 0;
     int Y_coordinate = 0;
-  if (buttonValueS == LOW) {
-  Serial.print("Current Position: ");
-    
-    X_coordinate = (g_prevX-2)/12;
 
-    Y_coordinate = (g_prevY-30)/12 - 1;
+    if (buttonValueS == LOW) {
+      Serial.print("Current Position: ");
 
-    Grid[X_coordinate][Y_coordinate] = 1;
+        X_coordinate = (g_prevX-2)/12;
 
-    h_prevX = g_prevX; h_prevY = g_prevY;
-updateDisplay2();    
-}
+        Y_coordinate = (g_prevY-30)/12 - 1;
 
+        Grid[X_coordinate][Y_coordinate] = 1;
 
-    // create a variable delay, so that each loop iteration takes
-    // MILLIS_PER_FRAME milliseconds.
-    //
-    // int curTime = millis();
-    // if (curTime - startTime < MILLIS_PER_FRAME) {
-    //   delay(MILLIS_PER_FRAME - (curTime-startTime));
-    // }
-    // startTime = millis()
+        h_prevX = g_prevX; h_prevY = g_prevY;
+        updateDisplay2();
+    }
+
    }
 
   Serial.end();
@@ -138,62 +129,31 @@ updateDisplay2();
 }
 
 void scanJoystick() {
-
-
    int buttonValueU = digitalRead(Up_Button);
    int buttonValueD = digitalRead(Down_Button);
    int buttonValueL = digitalRead(L_Button);
    int buttonValueR = digitalRead(R_Button);
    int buttonValueS = digitalRead(Select_Button);
 
-  // update g_cursorX & g_cursorY
-
   if (buttonValueU == LOW) {
-    // outside of deadzone
-  //  Serial.println("Up");
     g_cursorY = (g_cursorY - 12);
-
-    // if (g_prevY < 48) {
-    //   g_cursorY = 150;
-    // }
   }
 
   if (buttonValueD == LOW) {
-//    Serial.println("Down");
-    // outside of deadzone
     g_cursorY = (g_cursorY + 12);
-
-    // if (g_prevY > 144) {
-    //   g_cursorY = 42;
-    // }
   }
 
   if (buttonValueL == LOW) {
-    // outside of deadzone
     g_cursorX = (g_cursorX - 12);
-
-    // if (g_prevX > 16) {
-    //   g_cursorX = 118;
-    // }
   }
 
   if (buttonValueR == LOW) {
-    // outside of deadzone
     g_cursorX = (g_cursorX + 12);
-
-    // if (g_prevX < 112) {
-    //   g_cursorX = 10;
-    // }
   }
 
   else {
     g_colour = ST7735_GREEN;
   }
-
-
-  // Serial.print(v); Serial.print(" ");
-  // Serial.print(h); Serial.print(" ");
-  // Serial.println(select);
 
 }
 
@@ -215,49 +175,31 @@ void CheckEdges() {
   }
 }
 void updateDisplay() {
-  // tft.fillScreen(ST7735_BLACK); // BAD!
-
   tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
-
   delay(150);
+
   if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
-  tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
+    tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
 
-  tft.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
+    tft.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
 
-  tft.drawFastVLine(g_prevX-6, g_prevY-6, 12, WHITE);
-  tft.drawFastHLine(g_prevX-6, g_prevY -6, 12, WHITE);
+    // fix missing lane
+    tft.drawFastVLine(g_prevX-6, g_prevY-6, 12, WHITE);
+    tft.drawFastHLine(g_prevX-6, g_prevY-6, 12, WHITE);
 
+    g_prevX = g_cursorX;
+    g_prevY = g_cursorY;
 
-  // tft.drawRect(g_prevX -6, g_prevY - 6, 12, 12, WHITE);
-  g_prevX = g_cursorX;
-  g_prevY = g_cursorY;
-
-  tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
-}
-  // tft.drawLine(g_prevX-5, g_prevY, g_prevX+5, g_prevY, ST7735_BLACK);
-  // tft.drawLine(g_prevX, g_prevY-5, g_prevX, g_prevY+5, ST7735_BLACK);
-  // g_prevX = g_cursorX;
-  // g_prevY = g_cursorY;
-  // tft.drawLine(g_prevX-5, g_prevY, g_prevX+5, g_prevY, g_colour);
-  // tft.drawLine(g_prevX, g_prevY-5, g_prevX, g_prevY+5, g_colour);
+    tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
+  }
 }
 
 void updateDisplay2() {
-  // tft.fillScreen(ST7735_BLACK); // BAD!
-
   tft2.drawCircle(h_prevX, h_prevY, 5, g_colour);
-
 }
-  // tft.drawLine(g_prevX-5, g_prevY, g_prevX+5, g_prevY, ST7735_BLACK);
-  // tft.drawLine(g_prevX, g_prevY-5, g_prevX, g_prevY+5, ST7735_BLACK);
-  // g_prevX = g_cursorX;
-  // g_prevY = g_cursorY;
-  // tft.drawLine(g_prevX-5, g_prevY, g_prevX+5, g_prevY, g_colour);
-  // tft.drawLine(g_prevX, g_prevY-5, g_prevX, g_prevY+5, g_colour);
 
 void Setup() {
-    pinMode(Up_Button, INPUT);
+  pinMode(Up_Button, INPUT);
   pinMode(Down_Button, INPUT);
   pinMode(L_Button, INPUT);
   pinMode(R_Button, INPUT);
