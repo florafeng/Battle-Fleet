@@ -19,12 +19,6 @@
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_ST7735 tft2 = Adafruit_ST7735(CS, DC, RST);
 
-// int L_Button = 10;
-// int R_Button = 11;
-// int Up_Button = 3;
-// int Down_Button = 4;
-// int Select_Button = 2;
-
 int g_cursorX = 58; // cursor pixel position
 int g_cursorY = 90;
 int g_prevX = -1; // previously drawn position of the cursor
@@ -32,8 +26,8 @@ int g_prevY = -1;
 
 int h_cursorX = 58;
 int h_cursorY = 90;
-int h_prevX = -1;
-int h_prevY = -1;
+int h_prevX = 58;
+int h_prevY = 90;
 
 int grid1[10][10];
 int grid2[10][10];
@@ -55,47 +49,65 @@ const int SEL = 3;   // digital input
 int joystick_int_vert, joystick_int_horiz;
 int select;
 
-void updateOwnDisplay() {
-  if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
-    tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
-    tft.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
-    // fix missing lane
-    tft.drawFastVLine(g_prevX-6, g_prevY-6, 12, WHITE);
-    tft.drawFastHLine(g_prevX-6, g_prevY-6, 12, WHITE);
-
-    // store previous position
-    g_prevX = g_cursorX;
-    g_prevY = g_cursorY;
-    tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
+bool player1() {
+  bool player1 = false;
+  if (screen_order == 0) {
+    player1 = true;
   }
-  else if((h_prevX != h_cursorX) || (h_prevY != h_cursorY) ) {
-    tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_BLACK);
-    tft2.drawRect(h_prevX -6, h_prevY -6, 12, 12, ST7735_BLACK);
-    tft2.drawFastVLine(h_prevX-6, h_prevY-6, 12, WHITE);
-    tft2.drawFastHLine(h_prevX-6, h_prevY-6, 12, WHITE);
-
-    h_prevX = g_cursorX;
-    h_prevY = g_cursorY;
-    tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_GREEN);
-  }
+  return player1;
 }
 
-void updateDisplay2() {
-  tft2.drawCircle(h_prevX, h_prevY, 5, g_colour);
+// bool player2() {
+//   bool player2 = false;
+//   if (!player1) {
+//     player2 = true;
+//   }
+//   return player2;
+// }
+
+void updateOwnDisplay() {
+  if (player1) {
+    if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
+      tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
+      tft.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
+      // fix missing lane
+      tft.drawFastVLine(g_prevX-6, g_prevY-6, 12, WHITE);
+      tft.drawFastHLine(g_prevX-6, g_prevY-6, 12, WHITE);
+      // store previous position
+      g_prevX = g_cursorX;
+      g_prevY = g_cursorY;
+      tft.fillCircle(g_prevX, g_prevY, 5, g_colour);
+    }
+  }
+  if (screen_order == 1){
+    Serial.println("in!");
+    if((h_prevX != h_cursorX) || (h_prevY != h_cursorY) ) {
+      tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_BLACK);
+      tft2.drawRect(h_prevX -6, h_prevY -6, 12, 12, ST7735_BLACK);
+      tft2.drawFastVLine(h_prevX-6, h_prevY-6, 12, ST7735_GREEN);
+      tft2.drawFastHLine(h_prevX-6, h_prevY-6, 12, ST7735_GREEN);
+      h_prevX = h_cursorX;
+      h_prevY = h_cursorY;
+      tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_GREEN);
+    }
+  }
 }
 
 void updateOtherDisplay() {
-  if (select == LOW) {
-    Serial.print("Current Position: ");
+  int X_coordinate, Y_coordinate;
+  if (player1) {
+    Serial.println("Current Position: ");
+    X_coordinate = (g_prevX-2)/12;
+    Y_coordinate = (g_prevY-30)/12-1;
+    grid2[X_coordinate][Y_coordinate] = 1;
 
-      X_coordinate = (g_prevX-2)/12;
-
-      Y_coordinate = (g_prevY-30)/12 - 1;
-
-      grid1[X_coordinate][Y_coordinate] = 1;
-
-      h_prevX = g_prevX; h_prevY = g_prevY;
-      updateDisplay2();
+    h_prevX = g_prevX;
+    h_prevY = g_prevY;
+    tft2.drawCircle(h_prevX, h_prevY, 5, g_colour);
+  }else {
+    Serial.println("player2 ");
+    X_coordinate = (g_prevX-2)/12;
+    Y_coordinate = (g_prevY-30)/12-1;
   }
 }
 
@@ -114,7 +126,7 @@ void lcdInt() {
   tft.drawFastVLine(x, 36, 120, WHITE);
   tft2.drawFastVLine(x, 36, 120, GREEN);
   }
-
+  tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_GREEN);
   delay(150);
 }
 
@@ -134,14 +146,6 @@ void gridInt() {
   }
 }
 
-bool player1() {
-  bool player1 = false;
-  if (screen_order == 0) {
-    player1 = true;
-  }
-  return player1;
-}
-
 void setup() {
   lcdInt();    // fill screen, draw grid and intial cursor
   joystickInt();
@@ -149,7 +153,7 @@ void setup() {
 }
 
 void checkEdge() {
-  if (player1) {
+  if (screen_order == 0) {
     if (g_cursorY > 150) {
       g_cursorY = 42;
     }
@@ -162,7 +166,8 @@ void checkEdge() {
     if (g_cursorX > 118) {
       g_cursorX = 10;
     }
-  }else {
+  }
+  else if (screen_order == 1) {
     if (h_cursorY > 150) {
       h_cursorY = 42;
     }
@@ -182,17 +187,33 @@ void corsorMovement() {
  int joystick_vert = analogRead(VERT);
  int joystick_horiz = analogRead(HORIZ);
 
- if (joystick_vert >= 700) {
-   g_cursorY = (g_cursorY + 12);
+ if (screen_order == 0) {
+   if (joystick_vert >= 700) {
+     g_cursorY += 12;
+   }
+   else if (joystick_vert <= 300) {
+     g_cursorY -= 12;
+   }
+   else if (joystick_horiz <= 300) {
+     g_cursorX -= 12;
+   }
+   else if (joystick_horiz >= 700) {
+     g_cursorX += 12;
+   }
  }
- else if (joystick_vert <= 300) {
-   g_cursorY = (g_cursorY - 12);
- }
- else if (joystick_horiz <= 300) {
-   g_cursorX = (g_cursorX - 12);
- }
- else if (joystick_horiz >= 700) {
-   g_cursorX = (g_cursorX + 12);
+ else if (screen_order == 1)  {
+   if (joystick_vert >= 700) {
+     h_cursorY += 12;
+   }
+   else if (joystick_vert <= 300) {
+     h_cursorY -= 12;
+   }
+   else if (joystick_horiz <= 300) {
+     h_cursorX -= 12;
+   }
+   else if (joystick_horiz >= 700) {
+     h_cursorX += 12;
+   }
  }
 
   checkEdge();
@@ -202,10 +223,10 @@ void corsorMovement() {
 
 void switchTurn() {
   if (screen_order == 0) {
-    screen_order = screen_order + 1;
+    screen_order += 1;
   }
-  if (screen_order == 1) {
-    screen_order = screen_order - 1;
+  else if (screen_order == 1) {
+    screen_order -= 1;
   }
 }
 
@@ -219,19 +240,16 @@ int main() {
   int startTime = millis();
 
   while (true) {
-
+    // bool bo = player1();
+    // Serial.print("player1: "); Serial.println(bo);
     corsorMovement();
-    updateOtherDisplay();
-    switchTurn();
 
     select = digitalRead(SEL);
-
-    int X_coordinate = 0;
-    int Y_coordinate = 0;
-
-
-
-
+    if (select == LOW) {
+      updateOtherDisplay();
+      switchTurn();
+      Serial.print("screen: ");Serial.println(screen_order);
+    }
    }
 
   Serial.end();
