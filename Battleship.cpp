@@ -48,6 +48,13 @@ uint16_t h_colour = ST7735_GREEN;
 
 const uint16_t MY_YELLOW = tft.Color565(0xff, 0xff, 0x00);
 
+// Joystick
+const int VERT = 0;  // analog input
+const int HORIZ = 1; // analog input
+const int SEL = 3;   // digital input
+int joystick_int_vert, joystick_int_horiz;
+// int joystick_vert, joystick_horiz;
+
 void updateDisplay() {
   if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
     // draw new cursor
@@ -89,6 +96,13 @@ void lcdInt() {
   delay(150);
 }
 
+void joystickInt() {
+  pinMode(SEL, INPUT);
+  digitalWrite(SEL, HIGH);
+  joystick_int_vert = analogRead(VERT);
+  joystick_int_horiz = analogRead(HORIZ);
+}
+
 void buttonInt() {
   pinMode(Up_Button, INPUT);
   pinMode(Down_Button, INPUT);
@@ -113,6 +127,7 @@ void gridInt() {
 
 void setup() {
   lcdInt();    // fill screen, draw grid and intial cursor
+  joystickInt();
   buttonInt(); // setup buttons
   gridInt();   // initialze position array
 }
@@ -136,30 +151,47 @@ void checkEdge() {
 }
 
 void corsorMovement() {
-   int buttonValueU = digitalRead(Up_Button);
-   int buttonValueD = digitalRead(Down_Button);
-   int buttonValueL = digitalRead(L_Button);
-   int buttonValueR = digitalRead(R_Button);
-   int buttonValueS = digitalRead(Select_Button);
+ // int buttonValueU = digitalRead(Up_Button);
+ // int buttonValueD = digitalRead(Down_Button);
+ // int buttonValueL = digitalRead(L_Button);
+ // int buttonValueR = digitalRead(R_Button);
+ // int buttonValueS = digitalRead(Select_Button);
+ int joystick_vert = analogRead(VERT);
+ int joystick_horiz = analogRead(HORIZ);
 
-  if (buttonValueU == LOW) {
-    g_cursorY = (g_cursorY - 12);
-  }
-  else if (buttonValueD == LOW) {
-    g_cursorY = (g_cursorY + 12);
-  }
-  else if (buttonValueL == LOW) {
-    g_cursorX = (g_cursorX - 12);
-  }
-  else if (buttonValueR == LOW) {
-    g_cursorX = (g_cursorX + 12);
-  }
-  else if (buttonValueS == LOW) {
-    g_colour = ST7735_GREEN;
-  }
+ if (joystick_vert >= 700) {
+   g_cursorY = (g_cursorY + 12);
+ }
+ else if (joystick_vert <= 300) {
+   g_cursorY = (g_cursorY - 12);
+ }
+ else if (joystick_horiz <= 300) {
+   g_cursorX = (g_cursorX - 12);
+ }
+ else if (joystick_horiz >= 700) {
+   g_cursorX = (g_cursorX + 12);
+ }
+
+
+  // if (buttonValueU == LOW) {
+  //   g_cursorY = (g_cursorY - 12);
+  // }
+  // else if (buttonValueD == LOW) {
+  //   g_cursorY = (g_cursorY + 12);
+  // }
+  // else if (buttonValueL == LOW) {
+  //   g_cursorX = (g_cursorX - 12);
+  // }
+  // else if (buttonValueR == LOW) {
+  //   g_cursorX = (g_cursorX + 12);
+  // }
+  // else if (buttonValueS == LOW) {
+  //   g_colour = ST7735_GREEN;
+  // }
 
   checkEdge();
   updateDisplay();
+  delay(250);
 }
 
 int main() {
@@ -172,8 +204,8 @@ int main() {
   while (true) {
 
     corsorMovement();
-    selectPosition();
-    switchPlayer();
+    // selectPosition();
+    // switchPlayer();
 
     int buttonValueS = digitalRead(Select_Button);
 
@@ -187,6 +219,8 @@ int main() {
     int X_coordinate = 0;
     int Y_coordinate = 0;
 
+
+
     if (buttonValueS == LOW) {
       Serial.print("Current Position: ");
 
@@ -194,12 +228,15 @@ int main() {
 
         Y_coordinate = (g_prevY-30)/12 - 1;
 
-        Grid[X_coordinate][Y_coordinate] = 1;
+        grid1[X_coordinate][Y_coordinate] = 1;
 
         h_prevX = g_prevX; h_prevY = g_prevY;
         updateDisplay2();
     }
 
+    // if (digitalRead(SEL) == LOW) {
+    //   Serial.println("Pressed!");
+    // }
    }
 
   Serial.end();
