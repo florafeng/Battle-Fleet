@@ -57,16 +57,8 @@ bool player1() {
   return player1;
 }
 
-// bool player2() {
-//   bool player2 = false;
-//   if (!player1) {
-//     player2 = true;
-//   }
-//   return player2;
-// }
-
 void updateOwnDisplay() {
-  if (player1) {
+  if (screen_order == 0) {
     if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
       tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
       tft.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
@@ -80,7 +72,9 @@ void updateOwnDisplay() {
     }
   }
   if (screen_order == 1){
-    Serial.println("in!");
+    // Serial.println("update owndisplay screen2");
+    // Serial.print("h_prevX: "); Serial.println(h_prevX);
+    // Serial.print("h_cursorX: "); Serial.println(h_cursorX);
     if((h_prevX != h_cursorX) || (h_prevY != h_cursorY) ) {
       tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_BLACK);
       tft2.drawRect(h_prevX -6, h_prevY -6, 12, 12, ST7735_BLACK);
@@ -95,19 +89,25 @@ void updateOwnDisplay() {
 
 void updateOtherDisplay() {
   int X_coordinate, Y_coordinate;
-  if (player1) {
+  if (screen_order == 0) {
     Serial.println("Current Position: ");
     X_coordinate = (g_prevX-2)/12;
     Y_coordinate = (g_prevY-30)/12-1;
     grid2[X_coordinate][Y_coordinate] = 1;
 
-    h_prevX = g_prevX;
-    h_prevY = g_prevY;
-    tft2.drawCircle(h_prevX, h_prevY, 5, g_colour);
-  }else {
+    // h_prevX = g_prevX;
+    // h_prevY = g_prevY;
+    tft2.drawCircle(g_prevX, g_prevY, 5, g_colour);
+  }
+  else if (screen_order == 1) {
     Serial.println("player2 ");
-    X_coordinate = (g_prevX-2)/12;
-    Y_coordinate = (g_prevY-30)/12-1;
+    X_coordinate = (h_prevX-2)/12;
+    Y_coordinate = (h_prevY-30)/12-1;
+    grid1[X_coordinate][Y_coordinate] = 1;
+
+    // g_prevX = h_prevX;
+    // g_prevY = h_prevY;
+    tft.drawCircle(h_prevX, h_prevY, 5, g_colour);
   }
 }
 
@@ -153,7 +153,7 @@ void setup() {
 }
 
 void checkEdge() {
-  if (screen_order == 0) {
+  if (player1) {
     if (g_cursorY > 150) {
       g_cursorY = 42;
     }
@@ -167,7 +167,7 @@ void checkEdge() {
       g_cursorX = 10;
     }
   }
-  else if (screen_order == 1) {
+  else if (!player1) {
     if (h_cursorY > 150) {
       h_cursorY = 42;
     }
@@ -230,8 +230,6 @@ void switchTurn() {
   }
 }
 
-
-
 int main() {
   init();
   Serial.begin(9600);
@@ -240,15 +238,15 @@ int main() {
   int startTime = millis();
 
   while (true) {
-    // bool bo = player1();
-    // Serial.print("player1: "); Serial.println(bo);
+    bool bo = player1();
+    Serial.print("player1: "); Serial.println(bo);
     corsorMovement();
 
     select = digitalRead(SEL);
     if (select == LOW) {
       updateOtherDisplay();
       switchTurn();
-      Serial.print("screen: ");Serial.println(screen_order);
+      // Serial.print("screen: ");Serial.println(screen_order);
     }
    }
 
