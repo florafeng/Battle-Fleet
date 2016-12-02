@@ -19,7 +19,7 @@
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_ST7735 tft2 = Adafruit_ST7735(CS, DC, RST);
 
-int g_cursorX = 58; // cursor pixel position
+int g_cursorX = 58;
 int g_cursorY = 90;
 int g_prevX = -1; // previously drawn position of the cursor
 int g_prevY = -1;
@@ -90,7 +90,7 @@ void updateOwnDisplay() {
 void updateOtherDisplay() {
   int X_coordinate, Y_coordinate;
   if (screen_order == 0) {
-    Serial.println("Current Position: ");
+    // Serial.println("Current Position: ");
     X_coordinate = (g_prevX-2)/12;
     Y_coordinate = (g_prevY-30)/12-1;
     grid2[X_coordinate][Y_coordinate] = 1;
@@ -100,7 +100,7 @@ void updateOtherDisplay() {
     tft2.drawCircle(g_prevX, g_prevY, 5, g_colour);
   }
   else if (screen_order == 1) {
-    Serial.println("player2 ");
+    // Serial.println("player2 ");
     X_coordinate = (h_prevX-2)/12;
     Y_coordinate = (h_prevY-30)/12-1;
     grid1[X_coordinate][Y_coordinate] = 1;
@@ -153,28 +153,29 @@ void setup() {
 }
 
 void checkEdge() {
-  if (player1) {
+  if (screen_order == 0) {
     if (g_cursorY > 150) {
       g_cursorY = 42;
     }
     if (g_cursorY < 42) {
       g_cursorY = 150;
     }
-    if (g_cursorX <10) {
+    if (g_cursorX < 10) {
       g_cursorX = 118;
     }
     if (g_cursorX > 118) {
       g_cursorX = 10;
     }
   }
-  else if (!player1) {
+  else if (screen_order == 1) {
+    Serial.println("checking edge for screen1!");
     if (h_cursorY > 150) {
       h_cursorY = 42;
     }
     if (h_cursorY < 42) {
       h_cursorY = 150;
     }
-    if (h_cursorX <10) {
+    if (h_cursorX < 10) {
       h_cursorX = 118;
     }
     if (h_cursorX > 118) {
@@ -238,8 +239,8 @@ int main() {
   int startTime = millis();
 
   while (true) {
-    bool bo = player1();
-    Serial.print("player1: "); Serial.println(bo);
+    // bool bo = player1();
+    // Serial.print("player1: "); Serial.println(bo);
     corsorMovement();
 
     select = digitalRead(SEL);
