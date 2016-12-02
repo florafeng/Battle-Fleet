@@ -64,113 +64,39 @@ int ship_order = 0;
 uint16_t g_colour = GREEN;
 
 
-void cursorMovement();
-void CheckEdges();
-void updateCursor();
-
-void lcdInt();
-void gridInt();
-void joystickInt();
-void Setup();
-
-void fillGrid();
-void Carrier();
-void Battleship();
-void Cruiser();
-void Destroyer();
-void drawX();
-
-void Battleship();
-
-int main() {
-  init();
-  Serial.begin(9600);
-  Setup();
-
-  int startTime = millis();
-
-g_prevX = 58; g_prevY = 90;
-
-while(screen_order == 0) {
-
-select = digitalRead(SEL);
-
-cursorMovement();
-updateCursor();
-
-   if (select == 0){
-     ship_order++;
-     delay(250);
-    }
-
-   if (ship_order == 5) {
-     delay(500);
-     tft.fillRect(5, 20, 120, 5, BLACK);
-     tft.setCursor(5, 20);
-     tft.setTextColor(BLACK, WHITE);
-     tft.print("Setup Complete!");
-     screen_order = 1;
-     break;
-    }
+void updateCursor() {
+  cursorMovement();
+  if (ship_order == 0) {
+    Carrier();
   }
-
-return 0;
-Serial.end();
+  if (ship_order == 1) {
+    Battleship();
+    }
+  if ((ship_order == 2) || (ship_order == 3)) {
+    Cruiser();
+  }
+  if (ship_order == 4) {
+    Destroyer();
+  }
 }
 
+void checkGrid() {
+  // Prints Grid to Serial Mon
 
-void fillGrid() {
-
-  //  X_coordinate = (g_prevX-2)/12;
-  //  Y_coordinate = (g_prevY-30)/12 - 1;
-
-   if ((screen_order == 0) && (ship_order == 1)) {
-     tft.setCursor(1, 5); tft.setTextColor(WHITE);
-     tft.print("Carrier Down");
-
-    Y_coordinate = (g_prevY-30)/12 - 1;
-
-    X_coordinate = (g_prevX-2)/12;
-    int x0 = X_coordinate-2; int x1 = X_coordinate +2;
-    for (x0; x0 < x1; x0++) {
-        grid1[X_coordinate][Y_coordinate] = 1;
+  int y0 = 0;
+  for (int y0; y0<10; y0++) {
+    for (int x0 =0; x0 <10; x0++) {
+        Serial.print(grid1[x0][y0]); Serial.print(" ");
     }
-
+  Serial.println();
   }
-
-  if ((screen_order==0) && (ship_order == 2)) {
-
-   Y_coordinate = (g_prevY-30)/12 - 1;
-
-   X_coordinate = (g_prevX-2)/12;
-   int x0 = X_coordinate-2; int x1 = X_coordinate +1;
-   for (x0; x0 < x1; x0++) {
-       grid1[X_coordinate][Y_coordinate] = 1;
-   }
-    // int c = g_prev+49
-    // for (g_prevX; g_prevX< c; g_prevX+=12) {
-
-  }
-  // while (ship_order == 3) {
-  //   Cruiser();
-  //
-  //   if (select == 0) { break;}
-  // }
-  // while (ship_order == 4) {
-  //   Cruiser();
-  //
-  //   if (select == 0) { break;}
-  // }
-  if (ship_order == 5) {
-  }
-
 }
 
 void cursorMovement() {
  int joystick_vert = analogRead(VERT);
  int joystick_horiz = analogRead(HORIZ);
 
- // if (screen_order == 0) {
+ // if (screen_order == 0)
    if (joystick_vert >= 700) {
      g_cursorY += 12;
    }
@@ -199,223 +125,67 @@ void cursorMovement() {
  //     h_cursorX += 12;
  //   }
 
-
 void CheckEdges() {
   if (g_cursorY > 150) {
-    g_cursorY = 42;
+      g_cursorY = 30;
   }
-  if (g_cursorY < 42) {
-    g_cursorY = 150;
+  if (g_cursorY < 30) {
+      g_cursorY = 150;
   }
-
-  int L; int R;
-
 
   if (ship_order == 0){
-
-  L = 2*12; R = 2*12;
-
-  if (g_cursorX <34) {
-    g_cursorX = 94;
-  }
-  if (g_cursorX > 94) {
-    g_cursorX = 34;
-  }
+      if (g_cursorX <34) {
+        g_cursorX = 106;
+      }
+      if (g_cursorX > 106) {
+        g_cursorX = 34;
+      }
   }
 
   if (ship_order == 1){
-  L = 2*12; R = 12;
-
-  if (g_cursorX <34) {
-    g_cursorX = 106;
+      if (g_cursorX <34) {
+        g_cursorX = 106;
+      }
+      if (g_cursorX > 106) {
+        g_cursorX = 34;
+      }
   }
-  if (g_cursorX > 106) {
-    g_cursorX = 34;
+  if ((ship_order == 2) || (ship_order == 3)){
+      if (g_cursorX <22) {
+        g_cursorX = 118;
+      }
+      if (g_cursorX > 118) {
+        g_cursorX = 22;
+      }
   }
-}
-// if (ship_order == 3){
-//   L = 12; R = 12;
-//
-//   if (g_cursorX <(10+L)) {
-//     g_cursorX = 118-R;
-//   }
-//   if (g_cursorX > 118-R) {
-//     g_cursorX = 10+L;
-//   }
-// }
-
-  // X_coordinate = (g_prevX-2)/12;
-  // Y_coordinate = (g_prevY-30)/12 - 1;
-
-
-}
-
-void updateCursor() {
-
-  cursorMovement();
-
-  if (ship_order == 0) {
-  tft.fillRect(5, 20, 100, 5, BLACK);
-  tft.setCursor(5, 20); tft.setTextColor(WHITE);
-  tft.print("Place the Carrier");
-
-  Carrier();
-  delay(150);
-  if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
-
-  Y_coordinate = (g_prevY-30)/12 - 1;
-
-  int c = g_prevX + 49;
-  for (g_prevX; g_prevX< c; g_prevX+=12) {
-      tft.fillRect(g_prevX-28, g_prevY-4, 9, 9, BLACK);
-  }
-
-  g_prevX = g_cursorX;
-  g_prevY = g_cursorY;
-
-  Carrier();
-
-  // for (int x0 = 10; x0 < 118 ; x0 += 12 ) {
-  //     X_coordinate = (g_prevX-2)/12;
-  //     if (grid1[x0][Y_coordinate] == 1) {    ;
-  //
-  //       tft.fillRect(x0, g_prevY - 4, 9, 9, WHITE);
-  //     }
-  //   }
-  }
-  }
-  if (ship_order == 1) {
-    tft.fillRect(5, 20, 100, 5, BLACK);
-    tft.setCursor(5, 20); tft.setTextColor(WHITE);
-    tft.print("Place the Battleship");
-
-    Battleship();
-    delay(150);
-    if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
-
-    Y_coordinate = (g_prevY-30)/12 - 1;
-
-    int c1 = g_prevX +37;
-    for (g_prevX; g_prevX< c1; g_prevX+=12) {
-        tft.fillRect(g_prevX-28, g_prevY-4, 9, 9, BLACK);
-    }
-
-    g_prevX = g_cursorX;
-    g_prevY = g_cursorY;
-
-    Battleship();
-
-
-    // int x0 = 10;
-    // for (x0; x0<118; x0 +=12 ) {
-    //   X_coordinate = (g_prevX-2)/12;
-    //     if (grid1[x0][Y_coordinate] == 1) {    ;
-    //         tft.fillRect(x0, g_prevY - 4, 9, 9, WHITE);
-    //     }
-    //   }
-    }
-  }
-
-  if (ship_order == 2) {
-    Cruiser();
-    delay(150);
-    if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
-
-    //Y_coordinate = (g_prevY-30)/12 - 1;
-
-    int c = g_prevX + 25;
-    for (g_prevX-12; g_prevX< c; g_prevX+=12) {
-        tft.fillRect(g_prevX-16, g_prevY-4, 9, 9, BLACK);
-    }
-
-    g_prevX = g_cursorX;
-    g_prevY = g_cursorY;
-
-    Cruiser();
-    }
-  }
-
-  if (ship_order == 3) {
-
-    Cruiser();
-    delay(150);
-    if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
-
-    //Y_coordinate = (g_prevY-30)/12 - 1;
-
-    int c = g_prevX + 25;
-    for (g_prevX-12; g_prevX< c; g_prevX+=12) {
-        tft.fillRect(g_prevX-16, g_prevY-4, 9, 9, BLACK);
-    }
-
-    g_prevX = g_cursorX;
-    g_prevY = g_cursorY;
-
-    Cruiser();
-    }
-  }
-
-  if (ship_order == 4) {
-
-    Destroyer();
-    delay(150);
-    if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
-
-    Y_coordinate = (g_prevY-30)/12 - 1;
-
-
-    for (int i =0; i<2; i++) {
-        tft.fillRect(g_prevX-4, g_prevY-4, 9, 9, BLACK);
-        g_prevX+=12;
-    }
-
-    g_prevX = g_cursorX;
-    g_prevY = g_cursorY;
-
-    Destroyer();
-
-    }
-
-  }
-
-}
-
-void Carrier() {
-  int i = g_prevX;
-  int c = g_prevX + 49;
-  for (i; i< c; i+=12) {
-      tft.fillRect(i-28, g_prevY-4, 9, 9, WHITE);
+  if (ship_order == 4){
+      if (g_cursorX <10) {
+        g_cursorX = 106;
+      }
+      if (g_cursorX > 118) {
+        g_cursorX = 10;
+      }
   }
 }
 
-void Battleship() {
-
-//  tft.fillTriangle(g_cursorX-28, g_cursorY-4, 9, 9, WHITE);
-  tft.fillTriangle(g_prevX +8, g_prevY-4, g_prevX+8, g_prevY+4, g_prevX+16, g_prevY, WHITE);
-  tft.fillRect(g_prevX-4, g_prevY-4, 9, 9, WHITE);
-  tft.fillRect(g_prevX-16, g_prevY-4, 9, 9, WHITE);
-  tft.fillRect(g_prevX - 23, g_prevY-4, 4, 9, WHITE);
-  tft.fillTriangle(g_prevX - 23, g_prevY-4, g_prevX-23, g_prevY+4, g_prevX-28, g_prevY, WHITE);
-
-
-}
-void Cruiser() {
-
-  tft.fillTriangle(g_cursorX +8, g_cursorY-4, g_cursorX+8, g_cursorY+4, g_cursorX+16, g_cursorY, WHITE);
-  tft.fillRect(g_cursorX-4, g_cursorY-4, 9, 9, WHITE);
-  tft.fillTriangle(g_cursorX - 8, g_cursorY-4, g_cursorX-8, g_cursorY+4, g_cursorX-12, g_cursorY, WHITE);
-
-  tft.fillRect(g_cursorX - 11, g_cursorY-4, 4, 9, WHITE);
-  tft.fillTriangle(g_cursorX - 12, g_cursorY-4, g_cursorX-12, g_cursorY+4, g_cursorX-16, g_cursorY, WHITE);
-
+void Ship(int length) {
+  // Generate (#Tile) Horizontal Ship
+  int start = g_prevX -4 +((length-2)*-12);
+  if ((start - g_prevX) <= -28) { start = g_prevX -28;}
+  int end = g_prevX + 20; if(length != 5) {end = g_prevX + 16;}
+  for (start; start<= end; start+=12) {
+      tft.fillRect(start, g_prevY+8, 9, 9, WHITE);
+  }
 }
 
-void Destroyer() {
-
-  tft.fillTriangle(g_cursorX +8, g_cursorY-4, g_cursorX+8, g_cursorY+4, g_cursorX+16, g_cursorY, WHITE);
-  tft.fillRect(g_cursorX+1 , g_cursorY-4, 4, 9, WHITE);
-  tft.fillTriangle(g_cursorX+1, g_cursorY-4, g_cursorX, g_cursorY+4, g_cursorX-4, g_cursorY, WHITE);
-
+void Black(int l) {
+  // Blacken/Remove (#Tile) Horizontal Ship
+  int start = g_prevX -4 +((l-2)*-12);
+  if ((start - g_prevX) <= -28) { start = g_prevX -28;}
+  int end = g_prevX + 20; if(l != 5) {end = g_prevX + 16;}
+  for (start; start<= end; start+=12) {
+      tft.fillRect(start, g_prevY+8, 9, 9, BLACK);
+  }
 }
 
 void drawX() {
@@ -423,6 +193,79 @@ void drawX() {
   tft.drawLine(g_cursorX-6, g_cursorY +6, g_cursorX+6, g_cursorY -6, WHITE);
 }
 
+void fillGrid() {
+  // Stores ships to grid1 as 1s
+   if ((screen_order == 0) && (ship_order == 1)) { //ship_order 1 == 5 Tile ship
+    //  tft.setCursor(1, 5); tft.setTextColor(WHITE);
+    //  tft.print("Carrier Down");
+     Ship(5);
+     getCoordinates();
+     g_cursorX = 58; g_cursorY = 90;
+
+     int X = X_coordinate -2; //int o = X_coordinate + 2;
+         while(X <= (X_coordinate+2)) {
+         Serial.println("Registering Grid");
+         grid1[X][Y_coordinate] = 1;
+         Serial.print("X: "); Serial.print(X); Serial.print(" Y: "); Serial.println(Y_coordinate);
+         X = X++;
+       }
+
+  }
+
+  if ((screen_order==0) && (ship_order == 2)) {
+    // 4 Tile Ship
+    Ship(4);
+    getCoordinates();
+
+    g_cursorX = 58; g_cursorY = 90;
+    int X = X_coordinate -2; //int o = X_coordinate + 2;
+        while(X <= (X_coordinate+1)) {
+        Serial.println("Registering Grid");
+        grid1[X][Y_coordinate] = 1;
+        Serial.print("X: "); Serial.print(X); Serial.print(" Y: "); Serial.println(Y_coordinate);
+        X = X++;
+      }
+  }
+  if ((screen_order == 0) && (ship_order == 3)) { // 3 Tile ship
+    Ship(3);
+    getCoordinates();
+
+    g_cursorX = 58; g_cursorY = 90;
+
+    int X = X_coordinate -1; //int o = X_coordinate + 2;
+        while(X <= X_coordinate+1) {
+        Serial.println("Registering Grid");
+        grid1[X][Y_coordinate] = 1;
+        X = X++;
+      }
+  }
+  if ((screen_order == 0) && (ship_order == 4)) { // 3 Tile Ship
+    Ship(3);
+    getCoordinates();
+
+    g_cursorX = 58; g_cursorY = 90;
+
+    int X = X_coordinate -1; //int o = X_coordinate + 2;
+        while(X <= X_coordinate+1) {
+        Serial.println("Registering Grid");
+        grid1[X][Y_coordinate] = 1;
+        X = X++;
+      }
+  }
+  if ((screen_order == 0) && (ship_order == 5)) {
+    Ship(2);
+    getCoordinates();
+
+    g_cursorX = 58; g_cursorY = 90;
+
+    int X = X_coordinate; //int o = X_coordinate + 2;
+        while(X <= X_coordinate+1) {
+        Serial.println("Registering grid1");
+        grid1[X][Y_coordinate] = 1;
+        X = X++;
+      }
+  }
+}
 
 void joystickInt() {
   pinMode(SEL, INPUT);
@@ -455,12 +298,14 @@ void lcdInt() {
 
 
 void gridInt() {
-  int p = 0;
+
   for (int q = 0; q < 10; q++) {
+    for (int p = 0; p<10; p++) {
     grid1[q][p] = 0;
     grid2[q][p] = 0;
-    p++;
+    }
   }
+  checkGrid();
 }
 
 
@@ -468,4 +313,158 @@ void Setup() {
   lcdInt();    // fill screen, draw grid and intial cursor
   joystickInt();
   gridInt();   // initialze position array
+}
+
+// Generate ships
+void Carrier() {
+  tft.fillRect(5, 20, 100, 10, BLACK);
+  tft.setCursor(5, 20); tft.setTextColor(WHITE);
+  tft.print("Place the Carrier");
+
+  Ship(5);
+
+  X_coordinate = (g_prevX-2)/12 -1;
+  Y_coordinate = (g_prevY-42)/12 + 1;
+  int z = g_prevX;
+  int v = g_prevY;
+  delay(150);
+  if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
+
+    Black(5);
+
+    if (grid1[X_coordinate][Y_coordinate] == 1) {
+      g_prevX = z;
+      g_prevY = v;
+      Ship(5);
+      }
+
+  g_prevX = g_cursorX;
+  g_prevY = g_cursorY;
+
+  Ship(5);
+}
+}
+
+void Battleship() {
+  tft.fillRect(5, 20, 100, 5, BLACK);
+  tft.setCursor(5, 20); tft.setTextColor(WHITE);
+  tft.print("Place the Battleship");
+
+  Ship(4);
+
+  X_coordinate = (g_prevX-2)/12 -1;
+  Y_coordinate = (g_prevY-42)/12 + 1;
+  int z = g_prevX;
+  int v = g_prevY;
+
+  delay(150);
+  if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
+
+
+    Black(4);
+  if (grid1[X_coordinate][Y_coordinate] == 1) {
+      g_prevX = z;
+      g_prevY = v;
+      Ship(4);
+  }
+
+  g_prevX = g_cursorX;
+  g_prevY = g_cursorY;
+
+  Ship(4);
+}
+}
+
+void Cruiser() {
+  Ship(3);
+
+  X_coordinate = (g_prevX-2)/12 -1;
+  Y_coordinate = (g_prevY-42)/12 + 1;
+  int z = g_prevX;
+  int v = g_prevY;
+
+  delay(150);
+  if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
+
+  //Y_coordinate = (g_prevY-30)/12 - 1;
+
+  Black(3);
+  if (grid1[X_coordinate][Y_coordinate] == 1) {
+    g_prevX = z;
+    g_prevY = v;
+    Ship(3);
+    }
+
+  g_prevX = g_cursorX;
+  g_prevY = g_cursorY;
+
+  Ship(3);
+  }
+}
+void Destroyer() {
+  Ship(2);
+
+  X_coordinate = (g_prevX-2)/12;
+  Y_coordinate = (g_prevY-30)/12 - 1;
+
+  int c = g_prevX;
+
+  delay(150);
+  if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
+
+    Black(2);
+    if (grid1[X_coordinate][Y_coordinate] == 1) {
+      g_prevX = c;
+      Ship(2);
+      }
+
+  g_prevX = g_cursorX;
+  g_prevY = g_cursorY;
+
+    Ship(2);
+  }
+}
+
+void getCoordinates() {
+  X_coordinate = (g_prevX+2)/12 -1;
+  Y_coordinate = (g_prevY-42)/12 +1;
+  Serial.print("X Position: "); Serial.print(g_prevX);
+  Serial.print(" Y Position: "); Serial.println(g_prevY);
+
+}
+
+int main() {
+  init();
+  Serial.begin(9600);
+  Setup();
+
+  int startTime = millis();
+  g_prevX = 58; g_prevY = 90;
+
+  while(screen_order == 0) {
+
+      select = digitalRead(SEL);
+      cursorMovement();
+      updateCursor();
+
+      if (select == 0){
+         ship_order++;
+         fillGrid();
+         delay(250);
+       }
+
+      if (ship_order == 5) {
+         delay(500);
+         tft.fillRect(5, 20, 120, 10, BLACK);
+         tft.setCursor(5, 20);
+         tft.setTextColor(BLACK, WHITE);
+         tft.print("Setup Complete!");
+         checkGrid();
+         screen_order = 1;
+         break;
+       }
+  }
+
+return 0;
+Serial.end();
 }
