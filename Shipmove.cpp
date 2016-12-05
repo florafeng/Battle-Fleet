@@ -50,6 +50,7 @@ int grid1[10][10];
 int grid2[10][10];
 int screen_order = 0;
 int ship_order = 0;
+int counter = 1;
 
 #define BLACK    0x0000
 #define BLUE     0x001F
@@ -140,7 +141,6 @@ void updateOtherDisplay() {
 
 void checkGrid() {
   // Prints Grid to Serial Mon
-
   int y0 = 0;
   for (int y0; y0<10; y0++) {
     for (int x0 =0; x0 <10; x0++) {
@@ -185,7 +185,7 @@ void ShipEdgeCases() {
   }
 }
 void CheckEdges() {
-  if (screen_order = 0) {
+  // if (screen_order = 0) {
       if (g_cursorY > 150) {
           g_cursorY = 42;
       }
@@ -195,28 +195,12 @@ void CheckEdges() {
 
   ShipEdgeCases();
   }
-  if (screen_order == 1) {
-          if (h_cursorY > 150) {
-            h_cursorY = 42;
-          }
-          if (h_cursorY < 42) {
-            h_cursorY = 150;
-          }
-          if (h_cursorX <10) {
-            h_cursorX = 118;
-          }
-          if (h_cursorX > 118) {
-            h_cursorX = 10;
-          }
-  }
-}
-
 
 void cursorMovement() {
  int joystick_vert = analogRead(VERT);
  int joystick_horiz = analogRead(HORIZ);
 
-  if (screen_order == 0){
+  // if (screen_order == 0){
    if (joystick_vert >= 800) {
      g_cursorY += 12;
    }
@@ -229,33 +213,25 @@ void cursorMovement() {
    else if (joystick_horiz >= 800) {
      g_cursorX += 12;
    }
- }
- else if (screen_order == 1)  {
-   if (joystick_vert >= 800) {
-     h_cursorY += 12;
-   }
-   else if (joystick_vert <= 200) {
-     h_cursorY -= 12;
-   }
-   else if (joystick_horiz <= 200) {
-     h_cursorX -= 12;
-   }
-   else if (joystick_horiz >= 800) {
-     h_cursorX += 12;
-   }
-   updateOwnDisplay();
-  }
+  //  updateOwnDisplay();
+
  CheckEdges();
 }
 
 void Ship(int length) {
   // Generate (#Tile) Horizontal Ship
-  int start = g_prevX -4 +((length-2)*-12);
-  if ((start - g_prevX) <= -28) { start = g_prevX -28;}
-  int end = g_prevX + 20; if(length != 5) {end = g_prevX + 16;}
-  for (start; start<= end; start+=12) {
-      tft.fillRect(start, g_prevY+8, 9, 9, WHITE);
-  }
+  // if (screen_order == 0) {
+    int start = g_prevX -4 +((length-2)*-12);
+    if ((start - g_prevX) <= -28) { start = g_prevX -28;}
+    int end = g_prevX + 20; if(length != 5) {end = g_prevX + 16;}
+    for (start; start<= end; start+=12) {
+      if (screen_order == 0) {
+        tft.fillRect(start, g_prevY+8, 9, 9, WHITE);
+      }else {
+        tft2.fillRect(start, g_prevY+8, 9, 9, WHITE);
+      }
+
+    }
 }
 
 void Black(int l) {
@@ -264,51 +240,63 @@ void Black(int l) {
   if ((start - g_prevX) <= -28) { start = g_prevX -28;}
   int end = g_prevX + 20; if(l != 5) {end = g_prevX + 16;}
   for (start; start<= end; start+=12) {
+    if(screen_order == 0) {
       tft.fillRect(start, g_prevY+8, 9, 9, BLACK);
+    }else {
+      tft2.fillRect(start, g_prevY+8, 9, 9, BLACK);
+    }
   }
 }
 
 void getCoordinates() {
   X_coordinate = (g_prevX+2)/12 -1;
   Y_coordinate = (g_prevY-42)/12 +1;
-  Serial.print("X Position: "); Serial.print(g_prevX);
-  Serial.print(" Y Position: "); Serial.println(g_prevY);
+  // Serial.print("X Position: "); Serial.print(g_prevX);
+  // Serial.print(" Y Position: "); Serial.println(g_prevY);
 }
 
 void fillGrid() {
   // Stores ships to grid1 as 1s
-   if ((screen_order == 0) && (ship_order == 1)) { //ship_order 1 == 5 Tile ship
+   if (ship_order == 1) { //ship_order 1 == 5 Tile ship
     //  tft.setCursor(1, 5); tft.setTextColor(WHITE);
     //  tft.print("Carrier Down");
      Ship(5);
      getCoordinates();
      g_cursorX = 58; g_cursorY = 90;
 
-     int X = X_coordinate -2; //int o = X_coordinate + 2;
-         while(X <= (X_coordinate+2)) {
-         Serial.println("Registering Grid");
-         grid1[X][Y_coordinate] = 1;
-         Serial.print("X: "); Serial.print(X); Serial.print(" Y: "); Serial.println(Y_coordinate);
-         X = X++;
-       }
+     int X = X_coordinate -2;
 
+     while(X <= (X_coordinate+2)) {
+    //  Serial.println("Registering Grid");
+      if (screen_order == 0) {
+          grid1[X][Y_coordinate] = 1;
+      }else {
+        grid2[X][Y_coordinate] = 1;
+      }
+      X = X++;
+     }
   }
 
-  if ((screen_order==0) && (ship_order == 2)) {
+  if (ship_order == 2) {
     // 4 Tile Ship
     Ship(4);
     getCoordinates();
 
     g_cursorX = 58; g_cursorY = 90;
     int X = X_coordinate -2; //int o = X_coordinate + 2;
-        while(X <= (X_coordinate+1)) {
-        Serial.println("Registering Grid");
+
+    while(X <= (X_coordinate+1)) {
+    // Serial.println("Registering Grid");
+    if (screen_order == 0) {
         grid1[X][Y_coordinate] = 1;
-        Serial.print("X: "); Serial.print(X); Serial.print(" Y: "); Serial.println(Y_coordinate);
-        X = X++;
-      }
+    }else {
+      grid2[X][Y_coordinate] = 1;
+    }
+    // Serial.print("X: "); Serial.print(X); Serial.print(" Y: "); Serial.println(Y_coordinate);
+    X = X++;
   }
-  if ((screen_order == 0) && (ship_order == 3)) { // 3 Tile ship
+  }
+  if (ship_order == 3) { // 3 Tile ship
     Ship(3);
     getCoordinates();
 
@@ -316,34 +304,47 @@ void fillGrid() {
 
     int X = X_coordinate -1; //int o = X_coordinate + 2;
         while(X <= X_coordinate+1) {
-        Serial.println("Registering Grid");
-        grid1[X][Y_coordinate] = 1;
+        // Serial.println("Registering Grid");
+        if (screen_order == 0) {
+          grid1[X][Y_coordinate] = 1;
+        }else {
+          grid2[X][Y_coordinate] = 1;
+        }
         X = X++;
       }
   }
-  if ((screen_order == 0) && (ship_order == 4)) { // 3 Tile Ship
+  if (ship_order == 4) { // 3 Tile Ship
     Ship(3);
-    getCoordinates();
+    // getCoordinates();
 
     g_cursorX = 58; g_cursorY = 90;
 
     int X = X_coordinate -1; //int o = X_coordinate + 2;
         while(X <= X_coordinate+1) {
-        Serial.println("Registering Grid");
-        grid1[X][Y_coordinate] = 1;
+        // Serial.println("Registering Grid");
+        if (screen_order == 0) {
+            grid1[X][Y_coordinate] = 1;
+        }else {
+          grid2[X][Y_coordinate] = 1;
+        }
         X = X++;
       }
   }
-  if ((screen_order == 0) && (ship_order == 5)) {
+
+  if (ship_order == 5) {
     Ship(2);
-    getCoordinates();
+    // getCoordinates();
 
     g_cursorX = 58; g_cursorY = 90;
 
     int X = X_coordinate; //int o = X_coordinate + 2;
         while(X <= X_coordinate+1) {
-        Serial.println("Registering grid1");
-        grid1[X][Y_coordinate] = 1;
+        // Serial.println("Registering grid1");
+        if (screen_order == 0) {
+            grid1[X][Y_coordinate] = 1;
+        }else {
+          grid2[X][Y_coordinate] = 1;
+        }
         X = X++;
       }
   }
@@ -351,9 +352,9 @@ void fillGrid() {
 
 // Generate ships
 void Carrier() {
-  tft.fillRect(5, 20, 100, 10, BLACK);
-  tft.setCursor(5, 20); tft.setTextColor(WHITE);
-  tft.print("Place the Carrier");
+  // tft.fillRect(5, 20, 100, 10, BLACK);
+  // tft.setCursor(5, 20); tft.setTextColor(WHITE);
+  // tft.print("Place the Carrier");
 
   Ship(5);
 
@@ -366,11 +367,13 @@ void Carrier() {
 
     Black(5);
 
-    if (grid1[X_coordinate][Y_coordinate] == 1) {
+    if (screen_order == 0 && grid1[X_coordinate][Y_coordinate] == 1) {
       g_prevX = z;
       g_prevY = v;
       Ship(5);
-      }
+     }
+    //  if (screen_order == 1 && grid1[X_coordinate][Y_coordinate] == 1) {
+
   g_prevX = g_cursorX;
   g_prevY = g_cursorY;
 
@@ -456,7 +459,6 @@ void Destroyer() {
 }
 
 void updateCursor() {
-  cursorMovement();
   if (ship_order == 0) {
     Carrier();
   }
@@ -530,11 +532,11 @@ int main() {
   while(true) {
 
       select = digitalRead(SEL);
+      // Serial.print("Screen order: "); Serial.println(screen_order);
       cursorMovement();
       updateCursor();
 
-
-      if ((select == 0) && (screen_order == 0)){
+      if (select == 0){
          ship_order++;
          fillGrid();
          delay(250);
@@ -546,13 +548,21 @@ int main() {
          tft.setCursor(5, 20);
          tft.setTextColor(BLACK, WHITE);
          tft.print("Setup Complete!");
-         screen_order = 1;
-//         checkGrid();        // isValid = fals         //break
+         // Initialize for screen 2
+         if (screen_order < 2) {
+           g_cursorX = 58;
+           g_cursorY = 90;
+           ship_order = 0;
+           screen_order++;
+         }else {
+           Serial.println("screen 2 done!");
+           // set up complete, communication with other arduino can be started
+         }
        }
 
-       if ((select == 0) && (screen_order == 1)) {
-          updateOtherDisplay();
-        }
+      //  if ((select == 0) && (screen_order == 1)) {
+      //     updateOtherDisplay();
+      //   }
   }
 // while(screen_order == 1) {
 //   Serial.println("Screen order 2");
