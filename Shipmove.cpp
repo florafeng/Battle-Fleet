@@ -40,8 +40,8 @@ int g_prevY = 90;
 
 int h_cursorX = 58;
 int h_cursorY = 90;
-int h_prevX = -1;
-int h_prevY = -1;
+int h_prevX = 58;
+int h_prevY = 90;
 
 int X_coordinate = 0;
 int Y_coordinate = 0;
@@ -63,20 +63,78 @@ int ship_order = 0;
 #define GREEN 0x07E0
 uint16_t g_colour = GREEN;
 
+bool player1() {
+  bool player1 = false;
+  if (screen_order == 1) {
+    player1 = true;
+  }
+  return player1;
+}
 
-void updateCursor() {
-  cursorMovement();
-  if (ship_order == 0) {
-    Carrier();
-  }
-  if (ship_order == 1) {
-    Battleship();
+void updateOwnDisplay() {
+
+if (screen_order == 1){
+  // Serial.println("update owndisplay screen2");
+  // Serial.print("h_prevX: "); Serial.println(h_prevX);
+  // Serial.print("h_cursorX: "); Serial.println(h_cursorX);
+  if((h_prevX != h_cursorX) || (h_prevY != h_cursorY) ) {
+
+    int prevX = h_prevX; int prevY = h_prevY;
+    int X_coordinate, Y_coordinate;
+    X_coordinate = (h_prevX-2)/12;
+    Y_coordinate = (h_prevY-30)/12-1;
+
+    tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_BLACK);
+    tft2.drawRect(h_prevX -6, h_prevY -6, 12, 12, ST7735_BLACK);
+
+    tft2.drawFastVLine(h_prevX-6, h_prevY-6, 12, WHITE);
+    tft2.drawFastHLine(h_prevX-6, h_prevY-6, 12, WHITE);
+
+    if (grid2[X_coordinate][Y_coordinate] == 11) {
+        tft2.drawCircle(h_prevX, h_prevY, 5, RED);
     }
-  if ((ship_order == 2) || (ship_order == 3)) {
-    Cruiser();
+    if (grid2[X_coordinate][Y_coordinate] == 10) {
+      tft2.drawLine(h_prevX-6, h_prevY -6, h_prevX+6, h_prevY +6, WHITE);
+      tft2.drawLine(h_prevX-6, h_prevY +6, h_prevX+6, h_prevY -6, WHITE);
+    }
+
+    h_prevX = h_cursorX;
+    h_prevY = h_cursorY;
+    tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_GREEN);
   }
-  if (ship_order == 4) {
-    Destroyer();
+}
+}
+
+
+void updateOtherDisplay() {
+  int X_coordinate, Y_coordinate;
+
+  if (screen_order == 1) {
+    // Serial.println("player2 ");
+    X_coordinate = (h_prevX-2)/12;
+    Y_coordinate = (h_prevY-30)/12-1;
+    if (grid1[X_coordinate][Y_coordinate] == 1) {
+
+      tft.fillRect(h_prevX -6, h_prevY -6, 12, 12, BLACK);
+      tft.drawRect(h_prevX -6, h_prevY -6, 12, 12, WHITE);
+      tft.fillCircle(h_prevX, h_prevY, 5, ORANGE);
+
+      grid2[X_coordinate][Y_coordinate] = 11;
+      tft2.drawCircle(h_prevX, h_prevY, 5, RED);
+
+    }
+    else if (grid1[X_coordinate][Y_coordinate] == 0) {
+
+      grid2[X_coordinate][Y_coordinate] = 10;
+      tft.drawLine(h_prevX-6, h_prevY -6, h_prevX+6, h_prevY +6, WHITE);
+      tft.drawLine(h_prevX-6, h_prevY +6, h_prevX+6, h_prevY -6, WHITE);
+
+      tft2.drawLine(h_prevX-6, h_prevY -6, h_prevX+6, h_prevY +6, WHITE);
+      tft2.drawLine(h_prevX-6, h_prevY +6, h_prevX+6, h_prevY -6, WHITE);
+    }
+    // g_prevX = h_prevX;
+    // g_prevY = h_prevY;
+    tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_GREEN);
   }
 }
 
@@ -92,47 +150,7 @@ void checkGrid() {
   }
 }
 
-void cursorMovement() {
- int joystick_vert = analogRead(VERT);
- int joystick_horiz = analogRead(HORIZ);
-
- // if (screen_order == 0)
-   if (joystick_vert >= 700) {
-     g_cursorY += 12;
-   }
-   else if (joystick_vert <= 300) {
-     g_cursorY -= 12;
-   }
-   else if (joystick_horiz <= 300) {
-     g_cursorX -= 12;
-   }
-   else if (joystick_horiz >= 700) {
-     g_cursorX += 12;
-   }
-   CheckEdges();
-}
- // else if (screen_order == 1)  {
- //   if (joystick_vert >= 700) {
- //     h_cursorY += 12;
- //   }
- //   else if (joystick_vert <= 300) {
- //     h_cursorY -= 12;
- //   }
- //   else if (joystick_horiz <= 300) {
- //     h_cursorX -= 12;
- //   }
- //   else if (joystick_horiz >= 700) {
- //     h_cursorX += 12;
- //   }
-
-void CheckEdges() {
-  if (g_cursorY > 150) {
-      g_cursorY = 30;
-  }
-  if (g_cursorY < 30) {
-      g_cursorY = 150;
-  }
-
+void ShipEdgeCases() {
   if (ship_order == 0){
       if (g_cursorX <34) {
         g_cursorX = 106;
@@ -140,8 +158,7 @@ void CheckEdges() {
       if (g_cursorX > 106) {
         g_cursorX = 34;
       }
-  }
-
+    }
   if (ship_order == 1){
       if (g_cursorX <34) {
         g_cursorX = 106;
@@ -167,6 +184,69 @@ void CheckEdges() {
       }
   }
 }
+void CheckEdges() {
+  if (screen_order = 0) {
+      if (g_cursorY > 150) {
+          g_cursorY = 42;
+      }
+      if (g_cursorY < 42) {
+          g_cursorY = 150;
+      }
+
+  ShipEdgeCases();
+  }
+  if (screen_order == 1) {
+          if (h_cursorY > 150) {
+            h_cursorY = 42;
+          }
+          if (h_cursorY < 42) {
+            h_cursorY = 150;
+          }
+          if (h_cursorX <10) {
+            h_cursorX = 118;
+          }
+          if (h_cursorX > 118) {
+            h_cursorX = 10;
+          }
+  }
+}
+
+
+void cursorMovement() {
+ int joystick_vert = analogRead(VERT);
+ int joystick_horiz = analogRead(HORIZ);
+
+  if (screen_order == 0){
+   if (joystick_vert >= 800) {
+     g_cursorY += 12;
+   }
+   else if (joystick_vert <= 200) {
+     g_cursorY -= 12;
+   }
+   else if (joystick_horiz <= 200) {
+     g_cursorX -= 12;
+   }
+   else if (joystick_horiz >= 800) {
+     g_cursorX += 12;
+   }
+ }
+ else if (screen_order == 1)  {
+   if (joystick_vert >= 800) {
+     h_cursorY += 12;
+   }
+   else if (joystick_vert <= 200) {
+     h_cursorY -= 12;
+   }
+   else if (joystick_horiz <= 200) {
+     h_cursorX -= 12;
+   }
+   else if (joystick_horiz >= 800) {
+     h_cursorX += 12;
+   }
+   updateOwnDisplay();
+  }
+ CheckEdges();
+}
 
 void Ship(int length) {
   // Generate (#Tile) Horizontal Ship
@@ -188,9 +268,11 @@ void Black(int l) {
   }
 }
 
-void drawX() {
-  tft.drawLine(g_cursorX-6, g_cursorY -6, g_cursorX+6, g_cursorY +6, WHITE);
-  tft.drawLine(g_cursorX-6, g_cursorY +6, g_cursorX+6, g_cursorY -6, WHITE);
+void getCoordinates() {
+  X_coordinate = (g_prevX+2)/12 -1;
+  Y_coordinate = (g_prevY-42)/12 +1;
+  Serial.print("X Position: "); Serial.print(g_prevX);
+  Serial.print(" Y Position: "); Serial.println(g_prevY);
 }
 
 void fillGrid() {
@@ -267,54 +349,6 @@ void fillGrid() {
   }
 }
 
-void joystickInt() {
-  pinMode(SEL, INPUT);
-  pinMode(Menu_Button, INPUT);
-  digitalWrite(Menu_Button, HIGH);
-  digitalWrite(SEL, HIGH);
-
-  // joystick_int_vert = analogRead(VERT);
-  // joystick_int_horiz = analogRead(HORIZ);
-}
-
-void lcdInt() {
-  tft.initR(INITR_BLACKTAB);
-  tft2.initR(INITR_BLACKTAB);
-  // fill screen
-  tft2.fillScreen(BLACK);
-  tft.fillScreen(ST7735_BLACK);
-  // draw grid
-  for (int16_t y = 36; y < 157; y += 12) {
-  tft.drawFastHLine(4, y, 120, WHITE);
-  tft2.drawFastHLine(4, y, 120, GREEN);
-  }
-  for (int16_t x = 4; x < 125; x += 12){
-  tft.drawFastVLine(x, 36, 120, WHITE);
-  tft2.drawFastVLine(x, 36, 120, GREEN);
-  }
-  tft2.fillCircle(h_prevX, h_prevY, 5, ST7735_GREEN);
-  delay(150);
-}
-
-
-void gridInt() {
-
-  for (int q = 0; q < 10; q++) {
-    for (int p = 0; p<10; p++) {
-    grid1[q][p] = 0;
-    grid2[q][p] = 0;
-    }
-  }
-  checkGrid();
-}
-
-
-void Setup() {
-  lcdInt();    // fill screen, draw grid and intial cursor
-  joystickInt();
-  gridInt();   // initialze position array
-}
-
 // Generate ships
 void Carrier() {
   tft.fillRect(5, 20, 100, 10, BLACK);
@@ -337,7 +371,6 @@ void Carrier() {
       g_prevY = v;
       Ship(5);
       }
-
   g_prevX = g_cursorX;
   g_prevY = g_cursorY;
 
@@ -367,7 +400,6 @@ void Battleship() {
       g_prevY = v;
       Ship(4);
   }
-
   g_prevX = g_cursorX;
   g_prevY = g_cursorY;
 
@@ -394,7 +426,6 @@ void Cruiser() {
     g_prevY = v;
     Ship(3);
     }
-
   g_prevX = g_cursorX;
   g_prevY = g_cursorY;
 
@@ -417,7 +448,6 @@ void Destroyer() {
       g_prevX = c;
       Ship(2);
       }
-
   g_prevX = g_cursorX;
   g_prevY = g_cursorY;
 
@@ -425,13 +455,69 @@ void Destroyer() {
   }
 }
 
-void getCoordinates() {
-  X_coordinate = (g_prevX+2)/12 -1;
-  Y_coordinate = (g_prevY-42)/12 +1;
-  Serial.print("X Position: "); Serial.print(g_prevX);
-  Serial.print(" Y Position: "); Serial.println(g_prevY);
-
+void updateCursor() {
+  cursorMovement();
+  if (ship_order == 0) {
+    Carrier();
+  }
+  if (ship_order == 1) {
+    Battleship();
+    }
+  if ((ship_order == 2) || (ship_order == 3)) {
+    Cruiser();
+  }
+  if (ship_order == 4) {
+    Destroyer();
+  }
 }
+
+void joystickInt() {
+  pinMode(SEL, INPUT);
+  pinMode(Menu_Button, INPUT);
+  digitalWrite(Menu_Button, HIGH);
+  digitalWrite(SEL, HIGH);
+
+  // joystick_int_vert = analogRead(VERT);
+  // joystick_int_horiz = analogRead(HORIZ);
+}
+
+void lcdInt() {
+  tft.initR(INITR_BLACKTAB);
+  tft2.initR(INITR_BLACKTAB);
+  // fill screen
+  tft2.fillScreen(BLACK);
+  tft.fillScreen(ST7735_BLACK);
+  // draw grid
+  for (int16_t y = 36; y < 157; y += 12) {
+  tft.drawFastHLine(4, y, 120, WHITE);
+  tft2.drawFastHLine(4, y, 120, WHITE);
+  }
+  for (int16_t x = 4; x < 125; x += 12){
+  tft.drawFastVLine(x, 36, 120, WHITE);
+  tft2.drawFastVLine(x, 36, 120, WHITE);
+  }
+  delay(150);
+}
+
+
+void gridInt() {
+
+  for (int q = 0; q < 10; q++) {
+    for (int p = 0; p<10; p++) {
+    grid1[q][p] = 0;
+    grid2[q][p] = 0;
+    }
+  }
+  checkGrid();
+}
+
+
+void Setup() {
+  lcdInt();    // fill screen, draw grid and intial cursor
+  joystickInt();
+  gridInt();   // initialze position array
+}
+
 
 int main() {
   init();
@@ -439,31 +525,44 @@ int main() {
   Setup();
 
   int startTime = millis();
-  g_prevX = 58; g_prevY = 90;
+//  bool isValid = true;
 
-  while(screen_order == 0) {
+  while(true) {
 
       select = digitalRead(SEL);
       cursorMovement();
       updateCursor();
 
-      if (select == 0){
+
+      if ((select == 0) && (screen_order == 0)){
          ship_order++;
          fillGrid();
          delay(250);
        }
 
       if (ship_order == 5) {
-         delay(500);
+         delay(100);
          tft.fillRect(5, 20, 120, 10, BLACK);
          tft.setCursor(5, 20);
          tft.setTextColor(BLACK, WHITE);
          tft.print("Setup Complete!");
-         checkGrid();
          screen_order = 1;
-         break;
+//         checkGrid();        // isValid = fals         //break
        }
+
+       if ((select == 0) && (screen_order == 1)) {
+          updateOtherDisplay();
+        }
   }
+// while(screen_order == 1) {
+//   Serial.println("Screen order 2");
+//   select = digitalRead(SEL);
+//   cursorMovement();
+//   if (select == LOW) {
+//
+//
+//   }
+// }
 
 return 0;
 Serial.end();
