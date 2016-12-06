@@ -19,19 +19,19 @@
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_ST7735 tft2 = Adafruit_ST7735(CS, DC, RST);
 
-int g_cursorX = 58;
-int g_cursorY = 90;
-int g_prevX = -1; // previously drawn position of the cursor
-int g_prevY = -1;
+uint8_t g_cursorX = 58;
+uint8_t g_cursorY = 90;
+uint8_t g_prevX = -1; // previously drawn position of the cursor
+uint8_t g_prevY = -1;
 
-int h_cursorX = 58;
-int h_cursorY = 90;
-int h_prevX = 58;
-int h_prevY = 90;
+uint8_t h_cursorX = 58;
+uint8_t h_cursorY = 90;
+uint8_t h_prevX = 58;
+uint8_t h_prevY = 90;
 
-int grid1[10][10];
-int grid2[10][10];
-int screen_order = 0;
+uint8_t grid1[10][10];
+uint8_t grid2[10][10];
+uint8_t screen_order = 0;
 
 #define WHITE 0xFFFF
 #define BLACK 0x0000
@@ -88,7 +88,7 @@ void updateOwnDisplay() {
 }
 
 void updateOtherDisplay() {
-  int X_coordinate, Y_coordinate;
+  uint8_t X_coordinate, Y_coordinate;
   if (screen_order == 0) {
     // Serial.println("Current Position: ");
     X_coordinate = (g_prevX-2)/12;
@@ -168,7 +168,7 @@ void checkEdge() {
     }
   }
   else if (screen_order == 1) {
-    Serial.println("checking edge for screen1!");
+    // Serial.println("checking edge for screen1!");
     if (h_cursorY > 150) {
       h_cursorY = 42;
     }
@@ -222,6 +222,17 @@ void corsorMovement() {
   delay(250);
 }
 
+uint8_t sendPosition() {
+  uint8_t ret;
+  if(screen_order == 0) {
+    ret = (g_cursorX+2)/12*10 + (g_cursorY-30)/12; // convertion to grid index
+  }
+  else if(screen_order == 1) {
+    ret = (h_cursorX+2)/12*10 + (h_cursorY-30)/12;
+  }
+  return ret;
+}
+
 void switchTurn() {
   if (screen_order == 0) {
     screen_order += 1;
@@ -231,26 +242,90 @@ void switchTurn() {
   }
 }
 
+// write to serial3
+void uint8_to_serial3(uint32_t num) {
+  Serial3.write((char) (num >> 0));
+}
+
+// read from serial3
+uint32_t uint8_from_serial3() {
+  uint32_t num = 0;
+  num = num | ((uint8_t) Serial3.read()) << 0;
+  return num;
+}
+
+bool wait_on_serial3( uint8_t nbytes, long timeout ) {
+  unsigned long deadline = millis() + timeout;
+  while (Serial3.available()<nbytes && (timeout<0 || millis()<deadline))
+  {
+    delay(1);
+  }
+  return Serial3.available()>=nbytes;
+}
+
+void updateGrid() {
+
+}
+
+void client() {
+  while(true) {
+    corsorMovement();
+    select = digitalRead(SEL);
+    if(select == LOW) {
+      uint8_t curr_pos = sendPosition();
+      uint8_to_serial3(curr_pos);
+
+      if (wait_on_serial3(1,1000)){
+        uint8_t response = uint8_from_serial3();
+        Serial.println("response");
+        updateGrid(response);
+      }
+      delay(150);
+      // serverResponse(curr_pos);
+    }
+  }
+}
+
 int main() {
   init();
   Serial.begin(9600);
+  Serial3.begin(9600);
   setup();
-
+  // Serial3.write("c");
   int startTime = millis();
+  // while (Serial3.available() > 0) {
+  //   int byte = Serial3.read();
+  //   Serial.println(byte-48);
+  // }
 
   while (true) {
     // bool bo = player1();
     // Serial.print("player1: "); Serial.println(bo);
-    corsorMovement();
+    // corsorMovement();
 
-    select = digitalRead(SEL);
-    if (select == LOW) {
-      updateOtherDisplay();
-      switchTurn();
-      // Serial.print("screen: ");Serial.println(screen_order);
+    // 1. send current Position
+    // 2. get feedback & print on screen
+    // 3. wait for response
+    int tmp = 0;
+    if(tmp == 0){
+    // if (Serial3.available() > 0) {
+      // int firstByte = Serial3.read();
+      // Serial.println(firstByte);
+      // if (firstByte == 67) { // ship set up complete
+        Serial.println("before client");
+        // bool setupComplet = true;
+        client();
+
+
+    // if (select == LOW) {
+    //
+    //   updateOtherDisplay();
+    //   switchTurn();
+    //   // Serial.print("screen: ");Serial.println(screen_order);
     }
    }
 
   Serial.end();
+  Serial3.end();
   return 0;
 }
