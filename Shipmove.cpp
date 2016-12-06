@@ -741,77 +741,76 @@ int main() {
   Serial.begin(9600);
   Serial3.begin(9600);
   Setup();
+  //
+  // tft.fillRect(1, 20, 120, 10, BLACK);
+  // tft.setCursor(1, 1);
+  // tft.setTextColor(WHITE, BLACK);
+  // tft.print("Welcome to Arduino Battleship");
+  //
+  // tft2.fillRect(1, 20, 120, 10, BLACK);
+  // tft2.setCursor(1, 1);
+  // tft2.setTextColor(WHITE, BLACK);
+  // tft2.print("Welcome to Arduino Battleship");
+  //
+  // tft.fillRect(0, 20, 128, 15, BLACK);
+  // tft.setCursor(1, 20); tft.setTextColor(WHITE);
+  // tft.print("Set Your 5 Ships");
+  //
+  // while(screen_order == 0) {
+  //
+  //     select = digitalRead(SEL);
+  //     Rotation = digitalRead(R_Button);
+  //
+  //     updateCursor();
+  //
+  //     if ((select == 0) && (screen_order == 0)){
+  //        ship_order++;
+  //        fillGrid();
+  //        delay(250);
+  //      }
+  //
+  //     if ((Rotation == LOW) && (Orientation == 0)) {
+  //
+  //         Orientation = 1;
+  //         delay(250);
+  //         continue;
+  //     }
+  //
+  //     if ((Rotation == LOW) && (Orientation == 1)) {
+  //         Orientation = 0;
+  //         delay(250);
+  //         continue;
+  //     }
+  //
+  //     if (ship_order == 5) {
+  //        delay(100);
+  //        tft.fillRect(0, 20, 128, 15, BLACK);
+  //        tft.setCursor(5, 20);
+  //        tft.setTextColor(BLACK, WHITE);
+  //        tft.print("Setup Complete!");
+  // //       checkGrid();
+  //        // Initiate Serial Communication
+  //        Serial3.print("C");
+  //        screen_order = 1;
+  //        break;
+  //      }
+  //    }
 
-  tft.fillRect(1, 20, 120, 10, BLACK);
-  tft.setCursor(1, 1);
-  tft.setTextColor(WHITE, BLACK);
-  tft.print("Welcome to Arduino Battleship");
-
-  tft2.fillRect(1, 20, 120, 10, BLACK);
-  tft2.setCursor(1, 1);
-  tft2.setTextColor(WHITE, BLACK);
-  tft2.print("Welcome to Arduino Battleship");
-
-  tft.fillRect(0, 20, 128, 15, BLACK);
-  tft.setCursor(1, 20); tft.setTextColor(WHITE);
-  tft.print("Set Your 5 Ships");
-
-  while(screen_order == 0) {
-
-      select = digitalRead(SEL);
-      Rotation = digitalRead(R_Button);
-
-      updateCursor();
-
-      if ((select == 0) && (screen_order == 0)){
-         ship_order++;
-         fillGrid();
-         delay(250);
-       }
-
-      if ((Rotation == LOW) && (Orientation == 0)) {
-
-          Orientation = 1;
-          delay(250);
-          continue;
-      }
-
-      if ((Rotation == LOW) && (Orientation == 1)) {
-          Orientation = 0;
-          delay(250);
-          continue;
-      }
-
-      if (ship_order == 5) {
-         delay(100);
-         tft.fillRect(0, 20, 128, 15, BLACK);
-         tft.setCursor(5, 20);
-         tft.setTextColor(BLACK, WHITE);
-         tft.print("Setup Complete!");
-  //       checkGrid();
-         // Initiate Serial Communication
-         Serial3.print("C");
-         screen_order = 1;
-         break;
-       }
-     }
-
-  while(screen_order == 1) {
-  // 1. decode number
-  uint8_t X1, Y1;
-  Serial3.print("Setup Complete!");
-
-  if (Serial3.available() != 0) {
-    Serial.println("Incoming");
-    delay(50);
-  while (Serial3.available() != 0) {
-    uint8_t XY = uint8_from_serial3();  //Reads the input from the Serial Monitor
+  // while(screen_order == 1) {
+  //   // 1. decode number
+  //   uint8_t X1, Y1;
+  //   Serial3.print("Setup Complete!");
+  //
+  //   if (Serial3.available() != 0) {
+  //     Serial.println("Incoming");
+  //     delay(50);
+  while (true) {
+    uint8_t XY = uint8_from_serial3();  //Reads coordinates
     Serial.print("XY: "); Serial.println(XY);
     Parse(XY);
     X1 = X_coordinate; Serial.print("X: "); Serial.print(X1);
-    Y1 = Y_coordinate; Serial.print(" Y: "); Serial.println(Y1);
-    }
-    Serial3.flush();
+    Y1 = Y_coordinate; Serial.print("Y: "); Serial.println(Y1);
+
     Serial3.write('1');
     // uint8_to_serial3(1);
     if (grid1[X1][Y1] == 1) {
@@ -821,8 +820,8 @@ int main() {
       Serial.println("MISS");
     }
 
-    }
   }
+  // }
   // 2. check grid
 
 

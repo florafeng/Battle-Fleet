@@ -42,6 +42,8 @@ uint16_t h_colour = ST7735_GREEN;
 
 const uint16_t MY_YELLOW = tft.Color565(0xff, 0xff, 0x00);
 
+uint8_t buffer;
+
 // Joystick
 const int VERT = 0;  // analog input
 const int HORIZ = 1; // analog input
@@ -248,8 +250,8 @@ void uint8_to_serial3(uint32_t num) {
 }
 
 // read from serial3
-uint32_t uint8_from_serial3() {
-  uint32_t num = 0;
+uint8_t uint8_from_serial3() {
+  uint8_t num = 0;
   num = num | ((uint8_t) Serial3.read()) << 0;
   return num;
 }
@@ -263,28 +265,46 @@ bool wait_on_serial3( uint8_t nbytes, long timeout ) {
   return Serial3.available()>=nbytes;
 }
 
-void updateGrid() {
+void updateGrid(uint8_t response) {
+  if(response == 0 && screen_order == 0) { // not occupied
+    // draw array
+  }
+  else if(response == 0 && screen_order == 1) {
+    //
+  }
+  else if(response == 1 && screen_order == 0) {
 
-}
+  }
+  else if(response == 1 && screen_order == 1) {
 
-void client() {
-  while(true) {
-    corsorMovement();
-    select = digitalRead(SEL);
-    if(select == LOW) {
-      uint8_t curr_pos = sendPosition();
-      uint8_to_serial3(curr_pos);
-
-      if (wait_on_serial3(1,1000)){
-        uint8_t response = uint8_from_serial3();
-        Serial.println("response");
-        updateGrid(response);
-      }
-      delay(150);
-      // serverResponse(curr_pos);
-    }
   }
 }
+
+// void client() {
+  // while(true) {
+  //   corsorMovement();
+  //   select = digitalRead(SEL);
+  //   if(select == LOW) {
+  //     uint8_t curr_pos = sendPosition();
+  //     uint8_to_serial3(curr_pos);
+  //
+  //     delay(100);
+  //
+  //     uint8_t response = Serial3.read();
+  //     Serial.print("response: "); Serial.println(response);
+  //     if (wait_on_serial3(1,1000)){
+  //       // uint8_t response = 0;
+  //       // response = Serial3.read();
+  //       Serial.print("response: "); Serial.println(response);
+  //
+  //     //   // updateGrid(response);
+  //     // }
+  //     delay(150);
+  //     switchTurn();
+  //     // serverResponse(curr_pos);
+  //   }
+  // }
+// }
 
 int main() {
   init();
@@ -306,24 +326,48 @@ int main() {
     // 1. send current Position
     // 2. get feedback & print on screen
     // 3. wait for response
-    int tmp = 0;
-    if(tmp == 0){
-    // if (Serial3.available() > 0) {
-      // int firstByte = Serial3.read();
-      // Serial.println(firstByte);
-      // if (firstByte == 67) { // ship set up complete
+    // int tmp = 0;
+    // if(tmp == 0){
+    if (Serial3.available() > 0) {
+      int firstByte = Serial3.read();
+      Serial.println(firstByte);
+      if (wait_on_serial3 && firstByte == 67) { // ship set up complete
         Serial.println("before client");
-        // bool setupComplet = true;
-        client();
+      
+        // client();
+        while(true) {
+          corsorMovement();
+          select = digitalRead(SEL);
+          if(select == LOW) {
+            uint8_t curr_pos = sendPosition();
+            uint8_to_serial3(curr_pos);
+
+            delay(100);
+
+            uint8_t response = Serial3.read();
+            Serial.print("response: "); Serial.println(response);
+            if (wait_on_serial3(1,1000)){
+              // uint8_t response = 0;
+              // response = Serial3.read();
+              Serial.print("response: "); Serial.println(response);
+
+            //   // updateGrid(response);
+            // }
+            delay(150);
+            switchTurn();
+            // serverResponse(curr_pos);
+          }
+        }
+      }
+    }
 
 
-    // if (select == LOW) {
-    //
+  }
+
     //   updateOtherDisplay();
     //   switchTurn();
     //   // Serial.print("screen: ");Serial.println(screen_order);
-    }
-   }
+
 
   Serial.end();
   Serial3.end();
