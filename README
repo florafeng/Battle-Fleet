@@ -1,0 +1,22 @@
+Project title: Battleship
+
+Author: Sida Feng 1463129
+        Chengyi Zhao
+
+Introduction
+Battleship is classic two player battle game.
+
+How to play
+
+Accessories:
+* Arduino Mega Board (AMG) * 2
+* joystick * 2
+* lcd screen with ST7735 chips* 4
+* wires * 85
+
+Wiring instructions
+Arduino_1 GND <—->  Arduino_2 GND
+Arduino_1 TX3 14 <-->  Arduino_2 RX3 15
+Arduino_2 TX3 14 <-->  Arduino_1 RX3 15
+
+Procedure:
