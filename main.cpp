@@ -8,8 +8,8 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>     // Core graphics library
 #include <Adafruit_ST7735.h>  // Hardware-specific library
-#include "Display.h"          // Update lcd display
-#include "Client.h"           // Communication between arduinos, client side
+#include "display.h"          // Update lcd display
+#include "client.h"           // Communication between arduinos, client side
 
 // LCD screen 1
 #define TFT_CS 6
@@ -21,9 +21,6 @@
 #define RST 12
 // LCD shared pin
 #define SD_CS 5
-
-Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-Adafruit_ST7735 tft2 = Adafruit_ST7735(CS, DC, RST);
 
 int main() {
   init();

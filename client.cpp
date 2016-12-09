@@ -1,7 +1,9 @@
 
 #include <Arduino.h>
-#include "Client.h"
-#include "Display.h"   // Update lcd display
+#include "client.h"
+#include "display.h"   // Update lcd display
+#include "cursor.h"    // ADD
+#include "joystick.h"
 
 typedef enum {
               Position_Check,
@@ -18,6 +20,7 @@ char* stateNames[] = {
               "Move_Cursor",
               "End"
               };
+int select; // detect if current position is selected
 
 /*
  * helper functions for main and sub client
@@ -99,7 +102,6 @@ bool clientSub(uint8_t pos) {
       occupied = checkResp(response); //
       Serial3.write('E'); // send end message
       client = End;
-      checkGrid();
       break;
     }
     else {
@@ -129,9 +131,8 @@ void clientMain() {
         uint8_t curr_pos = sendPosition();   // send current position to arduino two
         bool occupied = clientSub(curr_pos); // check if this position is occupied by ships from arduino two
         updateGridPos(occupied);             // use the result to update grid on arduino one
-        checkGrid();
         if (hit_counter == 17) { // all the ships are hit, end of game
-            Winner();
+            winner();
             break;
           }
         switchTurn();            // switch turn between two players
