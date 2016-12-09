@@ -1,4 +1,7 @@
-
+/*
+ * This file contains pin configuration for LCD and joystick
+ * And color for lcd display is defined here.
+ */
 
 // LCD screen 1
 #define TFT_CS 6
@@ -16,7 +19,7 @@ const int VERT = 0;  // analog input
 const int HORIZ = 1; // analog input
 const int SEL = 3;   // digital input
 
-
+// color defination
 #define BLACK    0x0000
 #define GREEN    0x07E0
 #define YELLOW   0xFFE0

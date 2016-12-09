@@ -1,17 +1,19 @@
 #include <Arduino.h>
 #include "config.h"
 #include "client.h"
-#include "display.h"   // Update lcd display
-#include "cursor.h"    // ADD
+#include "display.h"
+#include "cursor.h"
 #include "joystick.h"
 
+// declare states for client-server communication
 typedef enum {
               Position_Check,
               Wait_For_ACK,
               Wait_Ship_Int,
               Send_Response,
               Move_Cursor,
-              End} State;
+              End
+              } State;
 char* stateNames[] = {
               "Position_Check",
               "Wait_For_ACK",
@@ -26,12 +28,12 @@ uint8_t g_cursorX = 58; // cursor pixel position
 uint8_t g_cursorY = 90;
 uint8_t g_prevX = -1;   // previous cursor pixel position
 uint8_t g_prevY = -1;
-uint8_t grid1[11][11]; // Two Game Grids (using X, Y from 1 to 10)
+uint8_t grid1[11][11];  // store available position on the screen
 uint8_t grid2[11][11];
 
 // counters
-uint8_t screen_order = 0;
-    int hit_counter = 0; // useful for win condition
+uint8_t screen_order = 0; // current player
+int hit_counter = 0;      // useful for win condition
 
 /*
  * helper functions for main and sub client

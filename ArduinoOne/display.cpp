@@ -10,6 +10,7 @@
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_ST7735 tft2 = Adafruit_ST7735(CS, DC, RST);
 
+// initialize the display on lcd screen
 void lcdInt() {
   tft.initR(INITR_BLACKTAB);
   tft2.initR(INITR_BLACKTAB);
@@ -25,11 +26,12 @@ void lcdInt() {
   tft.drawFastVLine(x, 36, 120, YELLOW);
   tft2.drawFastVLine(x, 36, 120, GREEN);
   }
+  // draw cursor
   tft2.fillCircle(g_prevX, g_prevY, 5, ST7735_GREEN);
   delay(150);
 }
 
-
+// initialze position array
 void gridInt() {
   int p = 0;
   for (int q = 0; q < 10; q++) {
@@ -39,6 +41,7 @@ void gridInt() {
   }
 }
 
+// set up font on both screens
 void fontInt() {
   tft.fillRect(1, 20, 120, 10, BLACK);
   tft.setCursor(13,8);
@@ -191,20 +194,24 @@ void updateFont() {
   }
 }
 
+// if overlap, make the cursor blink
 void displayError(uint8_t num) {
   while(true) {
     if(screen_order == 0) {
+      // blink
       tft.fillRect(1, 1, 130, 34, ST7735_BLACK);
       tft.fillCircle(g_prevX, g_prevY, 5, RED);
       delay(300);
       tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
       delay(300);
+      // if moves away from overlapping position
       joystickScan();
       if(g_cursorX != g_prevX || g_cursorY != g_prevY) {
         tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
         tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
+        // redraw previous pattern
         if(num == 5) {
-        tft.fillCircle(g_prevX, g_prevY, 5, ORANGE);
+          tft.fillCircle(g_prevX, g_prevY, 5, ORANGE);
         }
         else if(num == 8) {
           tft.drawLine(g_prevX-6, g_prevY -6, g_prevX+6, g_prevY +6, WHITE);
@@ -216,16 +223,18 @@ void displayError(uint8_t num) {
       }
     }
     else if(screen_order == 1) {
+      // blink
       tft2.drawRect(1, 1, 130, 34, ST7735_BLACK); // fill with black first
       tft2.fillCircle(g_prevX, g_prevY, 5, RED);
       delay(300);
       tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
       delay(300);
+      // redraw previous pattern
       joystickScan();
       if(g_cursorX != g_prevX || g_cursorY != g_prevY) {
-        tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
+          tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
         if(num == 5) {
-        tft2.fillCircle(g_prevX, g_prevY, 5, ORANGE);
+          tft2.fillCircle(g_prevX, g_prevY, 5, ORANGE);
         }
         else if(num == 8) {
           tft2.drawLine(g_prevX-6, g_prevY -6, g_prevX+6, g_prevY +6, WHITE);
@@ -250,16 +259,16 @@ void updateOwnDisplay() {
       // store previous position
       g_prevX = g_cursorX;
       g_prevY = g_cursorY;
-
+      // check the value stored in the current grid
       uint8_t val = checkOccupied();
-      if(val == 5) {
+      if(val == 5) { // occupied with hit
         displayError(5);
       }
-      else if(val == 8) {
+      else if(val == 8) { // occupied with miss
         displayError(8);
       }
       else{
-        tft.fillCircle(g_prevX, g_prevY, 5, GREEN);
+        tft.fillCircle(g_prevX, g_prevY, 5, GREEN); // draw cursor
       }
     }
   }
@@ -273,16 +282,16 @@ void updateOwnDisplay() {
       // store previous position
       g_prevX = g_cursorX;
       g_prevY = g_cursorY;
-
+      // check the value stored in the current grid
       uint8_t val = checkOccupied();
-      if(val == 5) {
+      if(val == 5) { // occupied with hit
         displayError(5);
       }
-      else if(val == 8) {
+      else if(val == 8) { // occupied with miss
         displayError(8);
       }
       else{
-        tft2.fillCircle(g_prevX, g_prevY, 5, YELLOW);
+        tft2.fillCircle(g_prevX, g_prevY, 5, YELLOW); // draw cursor
       }
     }
   }
