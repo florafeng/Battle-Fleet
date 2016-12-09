@@ -2,8 +2,9 @@
 #define DISPLAY_H
 
 void setup();
-void updateGridPos();
+void updateGridPos(bool occupied);
 void winner();
-void fontUpdate();
+void updateFont();
+void updateOwnDisplay();
 
 #endif

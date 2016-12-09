@@ -1,14 +1,11 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>     // Core graphics library
 #include <Adafruit_ST7735.h>  // Hardware-specific library
-// #include "Joystick.h"
-// #include "Cursor.h"
+#include "config.h"
+#include "client.h"
+#include "joystick.h"
+#include "cursor.h"
 #include "display.h"
-
-#define BLACK    0x0000
-#define GREEN    0x07E0
-#define YELLOW   0xFFE0
-#define ORANGE   0xfa00
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_ST7735 tft2 = Adafruit_ST7735(CS, DC, RST);
@@ -32,12 +29,6 @@ void lcdInt() {
   delay(150);
 }
 
-void joystickInt() {
-  pinMode(SEL, INPUT);
-  digitalWrite(SEL, HIGH);
-  joystick_int_vert = analogRead(VERT);
-  joystick_int_horiz = analogRead(HORIZ);
-}
 
 void gridInt() {
   int p = 0;
@@ -167,7 +158,7 @@ void winner() {
 }
 
 // after player turn switches, update font on screen
-void fontUpdate() {
+void updateFont() {
   tft.fillRect(1, 1, 130, 34, BLACK);
   tft2.fillRect(1, 1, 130, 34, BLACK);
   if(screen_order == 0) {
@@ -197,5 +188,102 @@ void fontUpdate() {
     tft.setCursor(18,18);
     tft.setTextColor(YELLOW, BLACK);
     tft.print("for your turn!");
+  }
+}
+
+void displayError(uint8_t num) {
+  while(true) {
+    if(screen_order == 0) {
+      tft.fillRect(1, 1, 130, 34, ST7735_BLACK);
+      tft.fillCircle(g_prevX, g_prevY, 5, RED);
+      delay(300);
+      tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
+      delay(300);
+      joystickScan();
+      if(g_cursorX != g_prevX || g_cursorY != g_prevY) {
+        tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
+        tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
+        if(num == 5) {
+        tft.fillCircle(g_prevX, g_prevY, 5, ORANGE);
+        }
+        else if(num == 8) {
+          tft.drawLine(g_prevX-6, g_prevY -6, g_prevX+6, g_prevY +6, WHITE);
+          tft.drawLine(g_prevX-6, g_prevY +6, g_prevX+6, g_prevY -6, WHITE);
+        }
+        g_prevX = g_cursorX;
+        g_prevY = g_cursorY;
+        break;
+      }
+    }
+    else if(screen_order == 1) {
+      tft2.drawRect(1, 1, 130, 34, ST7735_BLACK); // fill with black first
+      tft2.fillCircle(g_prevX, g_prevY, 5, RED);
+      delay(300);
+      tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
+      delay(300);
+      joystickScan();
+      if(g_cursorX != g_prevX || g_cursorY != g_prevY) {
+        tft.fillRect(g_prevX-5, g_prevY-5, 11, 11, ST7735_BLACK);
+        if(num == 5) {
+        tft2.fillCircle(g_prevX, g_prevY, 5, ORANGE);
+        }
+        else if(num == 8) {
+          tft2.drawLine(g_prevX-6, g_prevY -6, g_prevX+6, g_prevY +6, WHITE);
+          tft2.drawLine(g_prevX-6, g_prevY +6, g_prevX+6, g_prevY -6, WHITE);
+        }
+        g_prevX = g_cursorX;
+        g_prevY = g_cursorY;
+        break;
+      }
+    }
+  }
+}
+
+void updateOwnDisplay() {
+  if (screen_order == 0) {
+    if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
+      tft.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
+      tft.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
+      // fix missing lane
+      tft.drawFastVLine(g_prevX-6, g_prevY-6, 12, YELLOW);
+      tft.drawFastHLine(g_prevX-6, g_prevY-6, 12, YELLOW);
+      // store previous position
+      g_prevX = g_cursorX;
+      g_prevY = g_cursorY;
+
+      uint8_t val = checkOccupied();
+      if(val == 5) {
+        displayError(5);
+      }
+      else if(val == 8) {
+        displayError(8);
+      }
+      else{
+        tft.fillCircle(g_prevX, g_prevY, 5, GREEN);
+      }
+    }
+  }
+  if (screen_order == 1){
+    if((g_prevX != g_cursorX) || (g_prevY != g_cursorY) ) {
+      tft2.fillCircle(g_prevX, g_prevY, 5, ST7735_BLACK);
+      tft2.drawRect(g_prevX -6, g_prevY -6, 12, 12, ST7735_BLACK);
+      // fix missing lane
+      tft2.drawFastVLine(g_prevX-6, g_prevY-6, 12, GREEN);
+      tft2.drawFastHLine(g_prevX-6, g_prevY-6, 12, GREEN);
+      // store previous position
+      g_prevX = g_cursorX;
+      g_prevY = g_cursorY;
+
+      uint8_t val = checkOccupied();
+      if(val == 5) {
+        displayError(5);
+      }
+      else if(val == 8) {
+        displayError(8);
+      }
+      else{
+        tft2.fillCircle(g_prevX, g_prevY, 5, YELLOW);
+      }
+    }
   }
 }

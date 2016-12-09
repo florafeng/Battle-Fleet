@@ -1,5 +1,5 @@
-
 #include <Arduino.h>
+#include "config.h"
 #include "client.h"
 #include "display.h"   // Update lcd display
 #include "cursor.h"    // ADD
@@ -20,7 +20,18 @@ char* stateNames[] = {
               "Move_Cursor",
               "End"
               };
-int select; // detect if current position is selected
+
+// position variables
+uint8_t g_cursorX = 58; // cursor pixel position
+uint8_t g_cursorY = 90;
+uint8_t g_prevX = -1;   // previous cursor pixel position
+uint8_t g_prevY = -1;
+uint8_t grid1[11][11]; // Two Game Grids (using X, Y from 1 to 10)
+uint8_t grid2[11][11];
+
+// counters
+uint8_t screen_order = 0;
+    int hit_counter = 0; // useful for win condition
 
 /*
  * helper functions for main and sub client
@@ -82,6 +93,16 @@ uint8_t sendPosition() {
   return ret;
 }
 
+void switchTurn() {
+  if (screen_order == 0) {
+    screen_order += 1;
+  }
+  else if (screen_order == 1) {
+    screen_order -= 1;
+  }
+  delay(200);
+}
+
 /*
  * sub function for client
  * useful for a) Send current position to arduino two
@@ -136,7 +157,7 @@ void clientMain() {
             break;
           }
         switchTurn();            // switch turn between two players
-        fontUpdate();            // update font display
+        updateFont();            // update font display
         delay(150);
       }
     }

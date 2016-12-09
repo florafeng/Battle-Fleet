@@ -11,17 +11,6 @@
 #include "display.h"          // Update lcd display
 #include "client.h"           // Communication between arduinos, client side
 
-// LCD screen 1
-#define TFT_CS 6
-#define TFT_DC 7
-#define TFT_RST 8
-// LCD screen 2
-#define DC 9
-#define CS 13
-#define RST 12
-// LCD shared pin
-#define SD_CS 5
-
 int main() {
   init();
   Serial.begin(9600);
