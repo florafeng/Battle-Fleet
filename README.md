@@ -35,9 +35,9 @@ Wiring/Pins are the same for both Arduinos.
 Procedure
 1. Uncompress the compressed folder or download the source file by running 'git clone git@github.com:florafeng/Arduino-Battleship.git' in your terminal.
 2. Go into the ArduinoOne folder.
-3. Connect the Arduino One to your computer through USB cable.
-4. Run 'make' in your terminal
-4. Repeat step 1-4 on a second arduino.
+3. Connect the first arduino to your computer through USB cable.
+4. Upload to the first arduino
+4. Repeat step 1-4 with the ArduinoTwo folder on a second arduino.
 
 Instructions:
 Wire each arduino as shown in the "Wiring Instructions" image.
@@ -46,7 +46,7 @@ and Arduino1 will be prompted to play. During the game, each button press will t
 
 Extra info
 1. Pin settings can be edited in config.h file, in case you have a different arduino or prefer some other wirings.
-2. This program is designed to upload two different set of code to two arduinos. This means you will upload the code from each folders on two computers. Alternately, switching ports will enable uploading two versions of code on one computer. To achieve this, run 'arduino-port-select' and choose port one and port two respectively for each arduinos.
+2. This program is designed to upload two different set of code to two arduinos. This means you will upload the code from each folders on two computers. Alternately, switching ports will enable uploading different code to different arduinos with a single computer. To achieve this, run 'arduino-port-select' and choose port one and port two respectively for each arduinos.
 3. Buidling with a Makefile through the Terminal is recommended.
 4. If you have encountered any problems, you are more than welcome to contact the author by emailing to sfeng3@ualberta.ca.
 
