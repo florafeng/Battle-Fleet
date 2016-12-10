@@ -9,7 +9,7 @@ This project replicates Battleship, the classic grid-based board game, through t
 Accessories:
 * Arduino Mega Board (AMG) x 2
 * Joystick with clickable button x 2
-* Adafruit 2.8' 128x160 TFT LCD Display x 4
+* Adafruit 1.8" (128x160) TFT LCD Display x 4
 * USB cables x 2
 * Wires x 85
 
@@ -48,6 +48,7 @@ Extra info
 1. Pin settings can be edited in config.h file, in case you have a different arduino or prefer some other wirings.
 2. This program is designed to upload two different set of code to two arduinos. This means you will upload the code from each folders on two computers. Alternately, switching ports will enable uploading different code to different arduinos with a single computer. To achieve this, run 'arduino-port-select' and choose port one and port two respectively for each arduinos.
 3. Buidling with a Makefile through the Terminal is recommended.
+4. Since SD data card is not required, it is not necessary to have an LCD display with a MicroSD reader breakout. However, having the 128x160 ratio is necessary for many functions.
 4. If you have encountered any problems, you are more than welcome to contact the author by emailing to sfeng3@ualberta.ca.
 
 
