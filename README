@@ -1,10 +1,10 @@
-Project title: Battleship
+Project title: Arduino Battleship
 
 Author: Sida Feng 1463129
-        Chengyi Zhao
+        Chengyi Zhao 1431058
 
 Introduction
-Battleship is classic two player battle game.
+Replicating the classic board game Battleship on Arduino using 4 LCD displays
 
 How to play
 
