@@ -14,6 +14,16 @@ This project replicates Battleship, the classic grid-based board game, through t
 * USB cables x 2
 * Wires x 85
 
+### Procedure
+1. Uncompress the compressed folder or download the source file by running
+```
+$ git clone git@github.com:florafeng/Arduino-Battleship.git
+```
+2. Go into the ArduinoOne folder.
+3. Connect the first arduino to your computer through USB cable.
+4. Upload to the first arduino.
+5. Repeat step 1-4 with the ArduinoTwo folder on a second arduino.
+
 ### Wiring instructions
 
 Wiring method for LCDs, Joystick, and Serial Communication are adapted from standard University of Alberta Tangible Computing Library.
@@ -32,16 +42,6 @@ Arduino_1 TX3 14 <-->  Arduino_2 RX3 15
 Arduino_2 TX3 14 <-->  Arduino_1 RX3 15
 
 Wiring/Pins are the same for both Arduinos.
-
-### Procedure
-1. Uncompress the compressed folder or download the source file by running
-```
-$ git clone git@github.com:florafeng/Arduino-Battleship.git
-```
-2. Go into the ArduinoOne folder.
-3. Connect the first arduino to your computer through USB cable.
-4. Upload to the first arduino.
-5. Repeat step 1-4 with the ArduinoTwo folder on a second arduino.
 
 ### Instructions:
 Wire each arduino as shown in the "Wiring Instructions" image.
