@@ -1,9 +1,10 @@
-Project: Arduino Battleship
+# Battle Fleet
 
-Author: Sida Feng 1463129 Section A2
-        Jack (Cheng Yi) Zhao 1431058 Section A2
+# Author
+* [Flora(Sida) Feng](https://github.com/florafeng)
+* [Jack(Cheng Yi) Zhao](https://github.com/ExiaSR)
 
-Introduction
+# Introduction
 This project replicates Battleship, the classic grid-based board game, through two Arduinos and four LCD displays. Each player will have two 10×10 LCD grids. On one grid the player arranges ships and records the shots by the opponent. On the other grid the player records their own shots. Initially, each player arranges their five ships on their primary grid, the ships cannot overlap or move beyond the grid. After the ships have been positioned, the game proceeds in a series of rounds. In each round, each player takes a turn to announce a target square in the opponent's grid which is to be shot at. The opponent announces whether or not the square is occupied by a ship, and if it is a "miss", the player marks their primary grid with a white cross; if a "hit" they mark this on their own primary grid with a orange circle. If all of a player's ships have been sunk, the game is over and their opponent wins.
 
 Accessories:
@@ -13,7 +14,7 @@ Accessories:
 * USB cables x 2
 * Wires x 85
 
-Wiring instructions 
+Wiring instructions
 
 Wiring method for LCDs, Joystick, and Serial Communication are adapted from standard University of Alberta Tangible Computing Library.
 
@@ -49,6 +50,4 @@ Extra info
 2. This program is designed to upload two different set of code to two arduinos. This means you will upload the code from each folders on two computers. Alternately, switching ports will enable uploading different code to different arduinos with a single computer. To achieve this, run 'arduino-port-select' and choose port one and port two respectively for each arduinos.
 3. Buidling with a Makefile through the Terminal is recommended.
 4. Since SD data card is not required, it is not necessary to have an LCD display with a MicroSD reader breakout. However, having the 128x160 ratio is necessary for many functions.
-4. If you have encountered any problems, you are more than welcome to contact the author by emailing to sfeng3@ualberta.ca.
-
-
+5. If you have encountered any problems, you are more than welcome to contact the author by emailing to sfeng3@ualberta.ca.
