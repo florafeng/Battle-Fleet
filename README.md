@@ -1,20 +1,20 @@
 # Battle Fleet
 
-# Author
+### Author
 * [Flora(Sida) Feng](https://github.com/florafeng)
-* [Jack(Cheng Yi) Zhao](https://github.com/ExiaSR)
+* [Jack(Cheng Yi) Zhao](https://github.com/kamui97)
 
-# Introduction
+### Introduction
 This project replicates Battleship, the classic grid-based board game, through two Arduinos and four LCD displays. Each player will have two 10×10 LCD grids. On one grid the player arranges ships and records the shots by the opponent. On the other grid the player records their own shots. Initially, each player arranges their five ships on their primary grid, the ships cannot overlap or move beyond the grid. After the ships have been positioned, the game proceeds in a series of rounds. In each round, each player takes a turn to announce a target square in the opponent's grid which is to be shot at. The opponent announces whether or not the square is occupied by a ship, and if it is a "miss", the player marks their primary grid with a white cross; if a "hit" they mark this on their own primary grid with a orange circle. If all of a player's ships have been sunk, the game is over and their opponent wins.
 
-Accessories:
+### Accessories:
 * Arduino Mega Board (AMG) x 2
 * Joystick with clickable button x 2
 * Adafruit 1.8" (128x160) TFT LCD Display x 4
 * USB cables x 2
 * Wires x 85
 
-Wiring instructions
+### Wiring instructions
 
 Wiring method for LCDs, Joystick, and Serial Communication are adapted from standard University of Alberta Tangible Computing Library.
 
@@ -33,19 +33,22 @@ Arduino_2 TX3 14 <-->  Arduino_1 RX3 15
 
 Wiring/Pins are the same for both Arduinos.
 
-Procedure
-1. Uncompress the compressed folder or download the source file by running 'git clone git@github.com:florafeng/Arduino-Battleship.git' in your terminal.
+### Procedure
+1. Uncompress the compressed folder or download the source file by running
+```
+$ git clone git@github.com:florafeng/Arduino-Battleship.git
+```
 2. Go into the ArduinoOne folder.
 3. Connect the first arduino to your computer through USB cable.
-4. Upload to the first arduino
-4. Repeat step 1-4 with the ArduinoTwo folder on a second arduino.
+4. Upload to the first arduino.
+5. Repeat step 1-4 with the ArduinoTwo folder on a second arduino.
 
-Instructions:
+### Instructions:
 Wire each arduino as shown in the "Wiring Instructions" image.
 On one Arduino, upload everything in Arduino2. This contains the Ship screens, including the setup. On a second Arduino, upload everything in Arduino1. Complete the setup procedure by setting 5 ships on both screens. Ensure that Arduino1 has fully uploaded, and that communication pins are fully connected prior to setting the final ship. When Setup is complete on Arduino2, communication will begin
 and Arduino1 will be prompted to play. During the game, each button press will trigger a turn change, flipping the active screen back and forth. For the game players grids are color-coded and lined up so Yellow grid plays based on Yellow grid, vice-versa with Green grids. First player to completely hit down all ships on their grid wins, prompting the end of the game.
 
-Extra info
+### Extra info
 1. Pin settings can be edited in config.h file, in case you have a different arduino or prefer some other wirings.
 2. This program is designed to upload two different set of code to two arduinos. This means you will upload the code from each folders on two computers. Alternately, switching ports will enable uploading different code to different arduinos with a single computer. To achieve this, run 'arduino-port-select' and choose port one and port two respectively for each arduinos.
 3. Buidling with a Makefile through the Terminal is recommended.
